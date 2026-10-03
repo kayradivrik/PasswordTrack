@@ -704,13 +704,63 @@ ApplicationWindow {
             
             RowLayout {
                 Layout.fillWidth: true
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                Layout.preferredHeight: 28
                 spacing: 0
-                Text { text: "SERVİS"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.preferredWidth: 220; verticalAlignment: Text.AlignVCenter }
-                Text { text: "KULLANICI ADI"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.preferredWidth: 250; verticalAlignment: Text.AlignVCenter }
-                Text { text: "PAROLA"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.fillWidth: true; verticalAlignment: Text.AlignVCenter }
-                Item { Layout.preferredWidth: 176 }
+                
+                Item {
+                    Layout.preferredWidth: 220
+                    Layout.minimumWidth: 220
+                    Layout.maximumWidth: 220
+                    Layout.fillHeight: true
+                    Text { 
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "SERVİS"
+                        color: textMuted
+                        font.bold: true
+                        font.pixelSize: 11
+                        font.letterSpacing: 1
+                    }
+                }
+                
+                Item {
+                    Layout.preferredWidth: 250
+                    Layout.minimumWidth: 250
+                    Layout.maximumWidth: 250
+                    Layout.fillHeight: true
+                    Text { 
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "KULLANICI ADI"
+                        color: textMuted
+                        font.bold: true
+                        font.pixelSize: 11
+                        font.letterSpacing: 1
+                    }
+                }
+                
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Text { 
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "PAROLA"
+                        color: textMuted
+                        font.bold: true
+                        font.pixelSize: 11
+                        font.letterSpacing: 1
+                    }
+                }
+                
+                Item { 
+                    Layout.preferredWidth: 176
+                    Layout.minimumWidth: 176
+                    Layout.maximumWidth: 176
+                    Layout.fillHeight: true
+                }
             }
             
             Rectangle {
@@ -750,182 +800,241 @@ ApplicationWindow {
                         anchors.rightMargin: 16
                         spacing: 0
                         
-                        // Servis ve Marka İkonu Kolonu
-                        RowLayout {
+                        // Kolon 1: Servis ve Marka İkonu (Sabit 220px)
+                        Item {
                             Layout.preferredWidth: 220
-                            spacing: 12
+                            Layout.minimumWidth: 220
+                            Layout.maximumWidth: 220
+                            Layout.fillHeight: true
+                            clip: true
                             
-                            Rectangle {
-                                width: 28
-                                height: 28
-                                radius: 6
-                                color: "#141414"
-                                border.color: "#262626"
-                                border.width: 1
+                            RowLayout {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.rightMargin: 12
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 12
                                 
-                                readonly property var brandItem: getBrandInfo(model.service)
-                                
-                                Image {
-                                    anchors.centerIn: parent
-                                    width: 16
-                                    height: 16
-                                    sourceSize.width: 16
-                                    sourceSize.height: 16
-                                    fillMode: Image.PreserveAspectFit
-                                    source: parent.brandItem ? parent.brandItem.icon : ""
-                                    visible: parent.brandItem !== null
+                                Rectangle {
+                                    Layout.preferredWidth: 28
+                                    Layout.preferredHeight: 28
+                                    radius: 6
+                                    color: "#141414"
+                                    border.color: "#262626"
+                                    border.width: 1
+                                    
+                                    readonly property var brandItem: getBrandInfo(model.service)
+                                    
+                                    Image {
+                                        anchors.centerIn: parent
+                                        width: 16
+                                        height: 16
+                                        sourceSize.width: 16
+                                        sourceSize.height: 16
+                                        fillMode: Image.PreserveAspectFit
+                                        source: parent.brandItem ? parent.brandItem.icon : ""
+                                        visible: parent.brandItem !== null
+                                    }
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: (model.service && model.service.length > 0) ? model.service.charAt(0).toUpperCase() : "?"
+                                        color: "#888888"
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        visible: parent.brandItem === null
+                                    }
                                 }
                                 
                                 Text {
-                                    anchors.centerIn: parent
-                                    text: (model.service && model.service.length > 0) ? model.service.charAt(0).toUpperCase() : "?"
-                                    color: "#888888"
-                                    font.pixelSize: 12
+                                    text: model.service ? model.service : "Bilinmiyor (Eski)"
+                                    color: textMain
+                                    font.pixelSize: 14
                                     font.bold: true
-                                    visible: parent.brandItem === null
+                                    Layout.fillWidth: true
+                                    elide: Text.ElideRight
+                                    verticalAlignment: Text.AlignVCenter
                                 }
                             }
+                        }
+                        
+                        // Kolon 2: Kullanıcı Adı / E-posta (Sabit 250px - Asla kaymaz)
+                        Item {
+                            Layout.preferredWidth: 250
+                            Layout.minimumWidth: 250
+                            Layout.maximumWidth: 250
+                            Layout.fillHeight: true
+                            clip: true
                             
-                            Text {
-                                text: model.service ? model.service : "Bilinmiyor (Eski)"
-                                color: textMain
+                            Text { 
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.rightMargin: 16
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: model.username
+                                color: textMuted
                                 font.pixelSize: 14
-                                font.bold: true
-                                Layout.fillWidth: true
                                 elide: Text.ElideRight
-                                verticalAlignment: Text.AlignVCenter
                             }
                         }
                         
-                        Text { text: model.username; color: textMuted; font.pixelSize: 14; Layout.preferredWidth: 250; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
-                        RowLayout {
+                        // Kolon 3: Parola ve Rozet (Kalan tüm genişlik, izole)
+                        Item {
                             Layout.fillWidth: true
-                            spacing: 8
-                            Text { text: showPassword ? model.password : "••••••••••••"; color: textMuted; font.pixelSize: 14; font.letterSpacing: showPassword ? 0 : 2; verticalAlignment: Text.AlignVCenter }
+                            Layout.fillHeight: true
+                            clip: true
                             
-                            // Birleşik Güvenlik Uyarısı Rozeti (Tek rozet, çoklu mesaj)
-                            Rectangle {
-                                readonly property bool hasPwned: Boolean(model.isPwned)
-                                readonly property bool hasWeak: Boolean(model.isWeak)
-                                readonly property bool hasReused: Boolean(model.isReused)
-                                readonly property bool hasIssue: hasPwned || hasWeak || hasReused
+                            RowLayout {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.rightMargin: 12
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 8
                                 
-                                visible: hasIssue
-                                width: 22
-                                height: 22
-                                radius: 4
-                                color: (hasPwned || hasWeak) ? "#26ff4444" : "#26fbbf24"
-                                border.color: (hasPwned || hasWeak) ? danger : "#fbbf24"
-                                border.width: 1
-                                
-                                Image {
-                                    anchors.centerIn: parent
-                                    width: 14
-                                    height: 14
-                                    sourceSize: Qt.size(14, 14)
-                                    fillMode: Image.PreserveAspectFit
-                                    source: (hasPwned || hasWeak) ? "qrc:/icons/alert.svg" : "qrc:/icons/copy.svg"
+                                Text { 
+                                    text: showPassword ? model.password : "••••••••••••"
+                                    color: textMuted
+                                    font.pixelSize: 14
+                                    font.letterSpacing: showPassword ? 0 : 2
+                                    verticalAlignment: Text.AlignVCenter
+                                    elide: Text.ElideRight
+                                    Layout.maximumWidth: parent.width - (warnBadge.visible ? 34 : 0)
                                 }
                                 
-                                ToolTip.visible: warnHover.containsMouse
-                                ToolTip.delay: 200
-                                ToolTip.text: {
-                                    var msgs = []
-                                    if (hasPwned) msgs.push("• Sızıntı Uyarısı: Bu şifre veri sızıntılarında (HIBP) açığa çıkmış!")
-                                    if (hasWeak) msgs.push("• Zayıf Şifre: Kolay tahmin edilebilir, en az 8+ karmaşık karakter önerilir.")
-                                    if (hasReused) msgs.push("• Tekrar Eden Şifre: Birden fazla hesapta ortak kullanılmış.")
-                                    return msgs.join("\n")
+                                // Birleşik Güvenlik Uyarısı Rozeti (Tek rozet, çoklu mesaj)
+                                Rectangle {
+                                    id: warnBadge
+                                    readonly property bool hasPwned: Boolean(model.isPwned)
+                                    readonly property bool hasWeak: Boolean(model.isWeak)
+                                    readonly property bool hasReused: Boolean(model.isReused)
+                                    readonly property bool hasIssue: hasPwned || hasWeak || hasReused
+                                    
+                                    visible: hasIssue
+                                    Layout.preferredWidth: 22
+                                    Layout.preferredHeight: 22
+                                    radius: 4
+                                    color: (hasPwned || hasWeak) ? "#26ff4444" : "#26fbbf24"
+                                    border.color: (hasPwned || hasWeak) ? danger : "#fbbf24"
+                                    border.width: 1
+                                    
+                                    Image {
+                                        anchors.centerIn: parent
+                                        width: 14
+                                        height: 14
+                                        sourceSize: Qt.size(14, 14)
+                                        fillMode: Image.PreserveAspectFit
+                                        source: (hasPwned || hasWeak) ? "qrc:/icons/alert.svg" : "qrc:/icons/copy.svg"
+                                    }
+                                    
+                                    ToolTip.visible: warnHover.containsMouse
+                                    ToolTip.delay: 200
+                                    ToolTip.text: {
+                                        var msgs = []
+                                        if (hasPwned) msgs.push("• Sızıntı Uyarısı: Bu şifre veri sızıntılarında (HIBP) açığa çıkmış!")
+                                        if (hasWeak) msgs.push("• Zayıf Şifre: Kolay tahmin edilebilir, en az 8+ karmaşık karakter önerilir.")
+                                        if (hasReused) msgs.push("• Tekrar Eden Şifre: Birden fazla hesapta ortak kullanılmış.")
+                                        return msgs.join("\n")
+                                    }
+                                    
+                                    MouseArea {
+                                        id: warnHover
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                    }
                                 }
                                 
-                                MouseArea {
-                                    id: warnHover
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                }
+                                Item { Layout.fillWidth: true }
                             }
-                            Item { Layout.fillWidth: true }
                         }
                         
-                        RowLayout {
+                        // Kolon 4: Eylemler (Sabit 176px)
+                        Item {
                             Layout.preferredWidth: 176
-                            spacing: 12
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            Layout.minimumWidth: 176
+                            Layout.maximumWidth: 176
+                            Layout.fillHeight: true
                             
-                            Button {
-                                Layout.preferredWidth: 32
-                                Layout.preferredHeight: 32
-                                icon.source: showPassword ? "qrc:/icons/eye-off.svg" : "qrc:/icons/eye.svg"
-                                icon.color: hovered ? "#000000" : textMain
-                                icon.width: 16
-                                icon.height: 16
-                                display: AbstractButton.IconOnly
-                                ToolTip.visible: hovered
-                                ToolTip.text: showPassword ? "Gizle" : "Göster"
-                                background: Rectangle { 
-                                    color: parent.hovered ? textMain : "transparent"
-                                    radius: 4 
+                            RowLayout {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 12
+                                
+                                Button {
+                                    Layout.preferredWidth: 32
+                                    Layout.preferredHeight: 32
+                                    icon.source: showPassword ? "qrc:/icons/eye-off.svg" : "qrc:/icons/eye.svg"
+                                    icon.color: hovered ? "#000000" : textMain
+                                    icon.width: 16
+                                    icon.height: 16
+                                    display: AbstractButton.IconOnly
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: showPassword ? "Gizle" : "Göster"
+                                    background: Rectangle { 
+                                        color: parent.hovered ? textMain : "transparent"
+                                        radius: 4 
+                                    }
+                                    onClicked: showPassword = !showPassword
                                 }
-                                onClicked: showPassword = !showPassword
-                            }
-                            
-                            Button {
-                                Layout.preferredWidth: 32
-                                Layout.preferredHeight: 32
-                                icon.source: "qrc:/icons/copy.svg"
-                                icon.color: hovered ? "#000000" : textMain
-                                icon.width: 16
-                                icon.height: 16
-                                display: AbstractButton.IconOnly
-                                ToolTip.visible: hovered
-                                ToolTip.text: "Kopyala (30s sonra silinir)"
-                                background: Rectangle { 
-                                    color: parent.hovered ? textMain : "transparent"
-                                    radius: 4 
+                                
+                                Button {
+                                    Layout.preferredWidth: 32
+                                    Layout.preferredHeight: 32
+                                    icon.source: "qrc:/icons/copy.svg"
+                                    icon.color: hovered ? "#000000" : textMain
+                                    icon.width: 16
+                                    icon.height: 16
+                                    display: AbstractButton.IconOnly
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: "Kopyala (30s sonra silinir)"
+                                    background: Rectangle { 
+                                        color: parent.hovered ? textMain : "transparent"
+                                        radius: 4 
+                                    }
+                                    onClicked: vaultManager.copyToClipboard(model.password)
                                 }
-                                onClicked: vaultManager.copyToClipboard(model.password)
-                            }
-                            
-                            Button {
-                                Layout.preferredWidth: 32
-                                Layout.preferredHeight: 32
-                                icon.source: "qrc:/icons/edit.svg"
-                                icon.color: hovered ? "#000000" : textMain
-                                icon.width: 16
-                                icon.height: 16
-                                display: AbstractButton.IconOnly
-                                ToolTip.visible: hovered
-                                ToolTip.text: "Düzenle"
-                                background: Rectangle { 
-                                    color: parent.hovered ? textMain : "transparent"
-                                    radius: 4 
+                                
+                                Button {
+                                    Layout.preferredWidth: 32
+                                    Layout.preferredHeight: 32
+                                    icon.source: "qrc:/icons/edit.svg"
+                                    icon.color: hovered ? "#000000" : textMain
+                                    icon.width: 16
+                                    icon.height: 16
+                                    display: AbstractButton.IconOnly
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: "Düzenle"
+                                    background: Rectangle { 
+                                        color: parent.hovered ? textMain : "transparent"
+                                        radius: 4 
+                                    }
+                                    onClicked: {
+                                        editDialog.entryId = model.id
+                                        editDialog.serviceText = model.service
+                                        editDialog.usernameText = model.username
+                                        editDialog.passwordText = model.password
+                                        editDialog.open()
+                                    }
                                 }
-                                onClicked: {
-                                    editDialog.entryId = model.id
-                                    editDialog.serviceText = model.service
-                                    editDialog.usernameText = model.username
-                                    editDialog.passwordText = model.password
-                                    editDialog.open()
-                                }
-                            }
-                            
-                            Button {
-                                Layout.preferredWidth: 32
-                                Layout.preferredHeight: 32
-                                icon.source: "qrc:/icons/trash.svg"
-                                icon.color: hovered ? "#ffffff" : danger
-                                icon.width: 16
-                                icon.height: 16
-                                display: AbstractButton.IconOnly
-                                ToolTip.visible: hovered
-                                ToolTip.text: "Sil"
-                                background: Rectangle { 
-                                    color: parent.hovered ? danger : "transparent"
-                                    radius: 4 
-                                }
-                                onClicked: {
-                                    vaultManager.deleteEntry(model.id)
-                                    loadData()
-                                    showToast("Şifre silindi.")
+                                
+                                Button {
+                                    Layout.preferredWidth: 32
+                                    Layout.preferredHeight: 32
+                                    icon.source: "qrc:/icons/trash.svg"
+                                    icon.color: hovered ? "#ffffff" : danger
+                                    icon.width: 16
+                                    icon.height: 16
+                                    display: AbstractButton.IconOnly
+                                    ToolTip.visible: hovered
+                                    ToolTip.text: "Sil"
+                                    background: Rectangle { 
+                                        color: parent.hovered ? danger : "transparent"
+                                        radius: 4 
+                                    }
+                                    onClicked: {
+                                        vaultManager.deleteEntry(model.id)
+                                        loadData()
+                                        showToast("Şifre silindi.")
+                                    }
                                 }
                             }
                         }
