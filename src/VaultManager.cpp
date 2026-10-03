@@ -342,6 +342,16 @@ void VaultManager::setWallpaperOpacity(qreal opacity) {
     settings.setValue("wallpaperOpacity", opacity);
 }
 
+qreal VaultManager::getUiScale() {
+    QSettings settings;
+    return settings.value("uiScale", 1.0).toReal();
+}
+
+void VaultManager::setUiScale(qreal scale) {
+    QSettings settings;
+    settings.setValue("uiScale", scale);
+}
+
 bool VaultManager::exportToCSV(const QString& filePath) {
     if (encryptionKey.isEmpty()) return false;
 

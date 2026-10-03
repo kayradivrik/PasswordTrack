@@ -26,6 +26,7 @@ ApplicationWindow {
     property int appState: vaultManager.isSetupRequired() ? 0 : 1
     property string wallpaperPath: vaultManager.getWallpaper()
     property real wallpaperOpacity: vaultManager.getWallpaperOpacity()
+    property real uiScale: vaultManager.getUiScale()
     
     // Parola Sağlığı Paneli Durumu
     property int healthScore: 100
@@ -251,10 +252,18 @@ ApplicationWindow {
         }
     }
 
-    // Setup Page
+    // Scaled Root Content Item (Arayüz Ölçeklendirme Kapsayıcısı)
     Item {
-        anchors.fill: parent
-        visible: appState === 0
+        id: scaledContent
+        width: parent.width / uiScale
+        height: parent.height / uiScale
+        scale: uiScale
+        transformOrigin: Item.TopLeft
+        
+        // Setup Page
+        Item {
+            anchors.fill: parent
+            visible: appState === 0
         
         ColumnLayout {
             anchors.centerIn: parent
@@ -946,7 +955,7 @@ ApplicationWindow {
         }
     }
     
-    // Settings Fullscreen Page
+    // Settings Fullscreen Page (Derli Toplu ve Kategorize Edilmiş)
     Item {
         anchors.fill: parent
         visible: appState === 3
@@ -957,9 +966,9 @@ ApplicationWindow {
             anchors.bottomMargin: 16
             anchors.leftMargin: Math.max(20, (parent.width - 840) / 2)
             anchors.rightMargin: Math.max(20, (parent.width - 840) / 2)
-            spacing: 20
+            spacing: 16
             
-            // Top Bar with Back Button
+            // Top Bar with Back Button & Header
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 16
@@ -980,18 +989,25 @@ ApplicationWindow {
                     onClicked: appState = 2
                 }
                 
-                Text {
-                    text: "Ayarlar"
-                    color: textMain
-                    font.pixelSize: 22
-                    font.bold: true
-                    font.letterSpacing: 1
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+                    Text {
+                        text: "Ayarlar"
+                        color: textMain
+                        font.pixelSize: 22
+                        font.bold: true
+                        font.letterSpacing: 1
+                    }
+                    Text {
+                        text: "Görünüm, güvenlik ve veri yönetimi tercihlerinizi yapılandırın"
+                        color: textMuted
+                        font.pixelSize: 12
+                    }
                 }
-                
-                Item { Layout.fillWidth: true }
             }
             
-            // Scrollable Settings List
+            // Scrollable Structured Settings List
             ScrollView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -1012,340 +1028,197 @@ ApplicationWindow {
                     width: parent.width - 12
                     spacing: 12
                     
-                    // 1. Anti-Screenshot Toggle
+                    // ========================================================
+                    // 1. BÖLÜM: GÖRÜNÜM & ARAYÜZ
+                    // ========================================================
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 4
+                        spacing: 8
+                        Text {
+                            text: "GÖRÜNÜM & ARAYÜZ"
+                            color: "#888888"
+                            font.pixelSize: 11
+                            font.bold: true
+                            font.letterSpacing: 1.5
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: "#222222" }
+                    }
+                    
+                    // 1.1 Arayüz Ölçeği
                     Rectangle {
                         Layout.fillWidth: true
-                        height: 72
-                        color: "transparent"
+                        Layout.preferredHeight: 116
+                        color: bgSecondary
                         border.color: borderMain
                         radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/shield.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
                         
                         ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Ekran Görüntüsü Koruması"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: "OBS ve ekran alıntı araçlarını (Snipping Tool) engeller."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        Switch {
-                            id: screenshotSwitch
-                            checked: true
-                            onCheckedChanged: vaultManager.setScreenshotProtection(checked)
-                            indicator: Rectangle {
-                                implicitWidth: 48
-                                implicitHeight: 26
-                                radius: 13
-                                color: screenshotSwitch.checked ? accent : bgSecondary
-                                border.color: screenshotSwitch.checked ? accent : borderMain
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 12
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 16
                                 
                                 Rectangle {
-                                    x: screenshotSwitch.checked ? parent.width - width - 2 : 2
-                                    y: 2
-                                    width: 22
-                                    height: 22
-                                    radius: 11
-                                    color: textMain
-                                    Behavior on x { NumberAnimation { duration: 200 } }
+                                    width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                    Image { source: "qrc:/icons/eye.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                                }
+                                
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Text { text: "Arayüz Ölçeği"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                    Text { text: "Tüm metin ve bileşen boyutlarını ekranınıza göre ölçeklendirin."; color: textMuted; font.pixelSize: 13 }
+                                }
+                                
+                                Text {
+                                    text: "%" + Math.round(uiScale * 100)
+                                    color: accent
+                                    font.pixelSize: 16
+                                    font.bold: true
+                                    Layout.preferredWidth: 60
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                            }
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 16
+                                
+                                Slider {
+                                    id: scaleSlider
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 20
+                                    from: 0.85
+                                    to: 1.30
+                                    stepSize: 0.05
+                                    value: uiScale
+                                    onMoved: {
+                                        var val = Math.round(value * 100) / 100
+                                        uiScale = val
+                                        vaultManager.setUiScale(val)
+                                    }
+                                    
+                                    background: Rectangle {
+                                        x: scaleSlider.leftPadding
+                                        y: scaleSlider.topPadding + scaleSlider.availableHeight / 2 - height / 2
+                                        width: scaleSlider.availableWidth
+                                        height: 4
+                                        radius: 2
+                                        color: borderMain
+                                        Rectangle {
+                                            width: scaleSlider.visualPosition * parent.width
+                                            height: parent.height
+                                            color: accent
+                                            radius: 2
+                                        }
+                                    }
+                                    handle: Rectangle {
+                                        x: scaleSlider.leftPadding + scaleSlider.visualPosition * (scaleSlider.availableWidth - width)
+                                        y: scaleSlider.topPadding + scaleSlider.availableHeight / 2 - height / 2
+                                        width: 16
+                                        height: 16
+                                        radius: 8
+                                        color: scaleSlider.pressed ? "#f0f0f0" : textMain
+                                    }
+                                }
+                                
+                                Row {
+                                    spacing: 6
+                                    Repeater {
+                                        model: [
+                                            { label: "%85", val: 0.85 },
+                                            { label: "%100", val: 1.00 },
+                                            { label: "%115", val: 1.15 },
+                                            { label: "%125", val: 1.25 }
+                                        ]
+                                        Rectangle {
+                                            width: 52
+                                            height: 28
+                                            radius: 6
+                                            color: Math.abs(uiScale - modelData.val) < 0.02 ? accent : (presetMa.hovered ? bgHover : "#141414")
+                                            border.color: Math.abs(uiScale - modelData.val) < 0.02 ? accent : borderMain
+                                            border.width: 1
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: modelData.label
+                                                color: Math.abs(uiScale - modelData.val) < 0.02 ? bgMain : textMain
+                                                font.pixelSize: 12
+                                                font.bold: true
+                                            }
+                                            MouseArea {
+                                                id: presetMa
+                                                anchors.fill: parent
+                                                hoverEnabled: true
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    uiScale = modelData.val
+                                                    scaleSlider.value = modelData.val
+                                                    vaultManager.setUiScale(modelData.val)
+                                                    showToast("Arayüz ölçeği " + modelData.label + " olarak ayarlandı.")
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                
-                // 2. Auto Lock
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
                     
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/clock.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
+                    // 1.2 Özel Duvar Kağıdı ve Opaklık
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: wallpaperPath !== "" ? 116 : 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
                         
                         ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Otomatik Kilit"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: "Belirli bir süre boşta kalınca kasayı otomatik kilitler."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        ComboBox {
-                            id: autoLockCombo
-                            Layout.preferredWidth: 150
-                            Layout.preferredHeight: 36
-                            model: ["1 Dakika", "5 Dakika", "10 Dakika", "Hiçbir Zaman"]
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 12
                             
-                            function minutesToIndex(mins) {
-                                if (mins === 1) return 0;
-                                if (mins === 5) return 1;
-                                if (mins === 10) return 2;
-                                return 3;
-                            }
-                            function indexToMinutes(idx) {
-                                if (idx === 0) return 1;
-                                if (idx === 1) return 5;
-                                if (idx === 2) return 10;
-                                return 0;
-                            }
-                            
-                            currentIndex: minutesToIndex(vaultManager.getAutoLockMinutes())
-                            
-                            onActivated: {
-                                var mins = indexToMinutes(currentIndex)
-                                vaultManager.setAutoLockMinutes(mins)
-                                if (mins > 0) {
-                                    showToast("Otomatik kilit " + mins + " dakika olarak ayarlandı.")
-                                } else {
-                                    showToast("Otomatik kilit devre dışı bırakıldı.")
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 16
+                                
+                                Rectangle {
+                                    width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                    Image { source: "qrc:/icons/image.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                                }
+                                
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+                                    Text { text: "Özel Duvar Kağıdı"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                    Text { text: wallpaperPath !== "" ? ("Opaklık: %" + Math.round(wallpaperOpacity * 100)) : "Arka planda estetik duracak bir görsel seçin."; color: textMuted; font.pixelSize: 13 }
+                                }
+                                
+                                Button {
+                                    text: wallpaperPath === "" ? "Görsel Seç" : "Değiştir"
+                                    Layout.preferredWidth: 90
+                                    Layout.preferredHeight: 36
+                                    background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
+                                    contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                    onClicked: wallpaperDialog.open()
+                                }
+                                
+                                Button {
+                                    visible: wallpaperPath !== ""
+                                    text: "Kaldır"
+                                    Layout.preferredWidth: 64
+                                    Layout.preferredHeight: 36
+                                    background: Rectangle { color: danger; radius: 6 }
+                                    contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                    onClicked: {
+                                        wallpaperPath = ""
+                                        vaultManager.setWallpaper("")
+                                    }
                                 }
                             }
-                            
-                            background: Rectangle {
-                                color: bgSecondary
-                                radius: 6
-                                border.color: borderMain
-                            }
-                            contentItem: Text {
-                                text: autoLockCombo.displayText
-                                color: textMain
-                                font.pixelSize: 13
-                                verticalAlignment: Text.AlignVCenter
-                                leftPadding: 12
-                            }
-                            delegate: ItemDelegate {
-                                width: autoLockCombo.width
-                                contentItem: Text { text: modelData; color: textMain; font.pixelSize: 13 }
-                                background: Rectangle { color: hovered ? bgHover : bgSecondary }
-                            }
-                        }
-                    }
-                }
-                
-                // 3. Encrypted Vault Backup (.vault)
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/shield.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Şifreli Yedek (.vault)"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: "Şifreleri çözmeden mevcut AES-256 anahtarıyla güvenli taşınabilir yedek oluşturur."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        Button {
-                            text: "Yedek Al"
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
-                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: exportVaultDialog.open()
-                        }
-                    }
-                }
-
-                // 4. Restore Vault (.vault)
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/key.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Yedekten Geri Yükle / Taşı"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: "Windows veya Arch Linux'tan aldığınız .vault yedeğini geri yükleyin veya birleştirin."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        Button {
-                            text: "Geri Yükle"
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
-                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: importVaultDialog.open()
-                        }
-                    }
-                }
-                
-                // 5. Export CSV
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/download.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Dışa Aktar (CSV)"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: "Tüm şifreleri Excel uyumlu CSV formatında dışa aktarır."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        Button {
-                            text: "Dışa Aktar"
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
-                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: exportCsvDialog.open()
-                        }
-                    }
-                }
-                
-                // 4. Ana Parolayı Değiştir
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/key.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Ana Parolayı Değiştir"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: "Kasa anahtarını günceller ve tüm kayıtları arka planda yeniden şifreler."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        Button {
-                            text: "Değiştir"
-                            Layout.preferredWidth: 100
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
-                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: changeMasterPwdDialog.open()
-                        }
-                    }
-                }
-                
-                // 5. Wipe Vault
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: danger
-                    radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: "#22ff4444"
-                            Image { source: "qrc:/icons/trash.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Kasayı Sıfırla"; color: danger; font.pixelSize: 15; font.bold: true }
-                            Text { text: "Tüm veritabanını kalıcı olarak siler. Geri alınamaz."; color: textMuted; font.pixelSize: 13 }
-                        }
-                        
-                        Button {
-                            text: "SİL"
-                            Layout.preferredWidth: 80
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: danger; radius: 6 }
-                            contentItem: Text { text: parent.text; color: bgMain; font.bold: true; font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: {
-                                vaultManager.wipeVault()
-                                vaultModel.clear()
-                                appState = 0
-                            }
-                        }
-                    }
-                }
-                
-                // 5. Wallpaper
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: wallpaperPath !== "" ? 100 : 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
-                    
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 16
-                        
-                        Rectangle {
-                            width: 40; height: 40; radius: 8; color: bgSecondary
-                            Image { source: "qrc:/icons/image.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
-                        }
-                        
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-                            Text { text: "Arka Plan Görseli"; color: textMain; font.pixelSize: 15; font.bold: true }
-                            Text { text: wallpaperPath !== "" ? "Opaklık: %" + Math.round(wallpaperOpacity * 100) : "Arka planda estetik duracak bir görsel seçin."; color: textMuted; font.pixelSize: 13 }
                             
                             Slider {
                                 visible: wallpaperPath !== ""
@@ -1358,7 +1231,6 @@ ApplicationWindow {
                                     wallpaperOpacity = value
                                     vaultManager.setWallpaperOpacity(value)
                                 }
-                                
                                 background: Rectangle {
                                     x: parent.leftPadding
                                     y: parent.topPadding + parent.availableHeight / 2 - height / 2
@@ -1366,7 +1238,6 @@ ApplicationWindow {
                                     height: 4
                                     radius: 2
                                     color: borderMain
-                                    
                                     Rectangle {
                                         width: parent.parent.visualPosition * parent.width
                                         height: parent.height
@@ -1374,7 +1245,6 @@ ApplicationWindow {
                                         radius: 2
                                     }
                                 }
-                                
                                 handle: Rectangle {
                                     x: parent.leftPadding + parent.visualPosition * (parent.availableWidth - width)
                                     y: parent.topPadding + parent.availableHeight / 2 - height / 2
@@ -1385,43 +1255,385 @@ ApplicationWindow {
                                 }
                             }
                         }
-                        
-                        Button {
-                            text: wallpaperPath === "" ? "Seç" : "Değiştir"
-                            Layout.preferredWidth: 80
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
-                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: wallpaperDialog.open()
+                    }
+                    
+                    // ========================================================
+                    // 2. BÖLÜM: GÜVENLİK & KORUMA
+                    // ========================================================
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 10
+                        spacing: 8
+                        Text {
+                            text: "GÜVENLİK & KORUMA"
+                            color: "#888888"
+                            font.pixelSize: 11
+                            font.bold: true
+                            font.letterSpacing: 1.5
                         }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: "#222222" }
+                    }
+                    
+                    // 2.1 Ana Parolayı Güncelle
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
                         
-                        Button {
-                            visible: wallpaperPath !== ""
-                            text: "Kaldır"
-                            Layout.preferredWidth: 60
-                            Layout.preferredHeight: 36
-                            background: Rectangle { color: danger; radius: 6 }
-                            contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                            onClicked: {
-                                wallpaperPath = ""
-                                vaultManager.setWallpaper("")
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                Image { source: "qrc:/icons/key.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Ana Parolayı Değiştir"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                Text { text: "Kasa anahtarını günceller ve tüm kayıtları atomik olarak yeni anahtarla yeniden şifreler."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            Button {
+                                text: "Değiştir"
+                                Layout.preferredWidth: 100
+                                Layout.preferredHeight: 36
+                                background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
+                                contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                onClicked: changeMasterPwdDialog.open()
                             }
                         }
                     }
-                }
-                
-                    Item { height: 16 }
+                    
+                    // 2.2 Ekran Görüntüsü ve Casus Koruması
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                Image { source: "qrc:/icons/shield.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Ekran Görüntüsü Koruması"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                Text { text: "OBS, Discord yayınları ve Snipping Tool gibi ekran yakalama araçlarını engeller."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            Switch {
+                                id: screenshotSwitch
+                                checked: true
+                                onCheckedChanged: vaultManager.setScreenshotProtection(checked)
+                                indicator: Rectangle {
+                                    implicitWidth: 48
+                                    implicitHeight: 26
+                                    radius: 13
+                                    color: screenshotSwitch.checked ? accent : "#141414"
+                                    border.color: screenshotSwitch.checked ? accent : borderMain
+                                    
+                                    Rectangle {
+                                        x: screenshotSwitch.checked ? parent.width - width - 2 : 2
+                                        y: 2
+                                        width: 22
+                                        height: 22
+                                        radius: 11
+                                        color: screenshotSwitch.checked ? bgMain : textMain
+                                        Behavior on x { NumberAnimation { duration: 200 } }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 2.3 Otomatik Kilit
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                Image { source: "qrc:/icons/clock.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Otomatik Kilit"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                Text { text: "Belirli bir süre boşta kalındığında kasayı otomatik olarak kilitler."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            ComboBox {
+                                id: autoLockCombo
+                                Layout.preferredWidth: 150
+                                Layout.preferredHeight: 36
+                                model: ["1 Dakika", "5 Dakika", "10 Dakika", "Hiçbir Zaman"]
+                                
+                                function minutesToIndex(mins) {
+                                    if (mins === 1) return 0;
+                                    if (mins === 5) return 1;
+                                    if (mins === 10) return 2;
+                                    return 3;
+                                }
+                                function indexToMinutes(idx) {
+                                    if (idx === 0) return 1;
+                                    if (idx === 1) return 5;
+                                    if (idx === 2) return 10;
+                                    return 0;
+                                }
+                                
+                                currentIndex: minutesToIndex(vaultManager.getAutoLockMinutes())
+                                
+                                onActivated: {
+                                    var mins = indexToMinutes(currentIndex)
+                                    vaultManager.setAutoLockMinutes(mins)
+                                    if (mins > 0) {
+                                        showToast("Otomatik kilit " + mins + " dakika olarak ayarlandı.")
+                                    } else {
+                                        showToast("Otomatik kilit devre dışı bırakıldı.")
+                                    }
+                                }
+                                
+                                background: Rectangle {
+                                    color: "#141414"
+                                    radius: 6
+                                    border.color: borderMain
+                                }
+                                contentItem: Text {
+                                    text: autoLockCombo.displayText
+                                    color: textMain
+                                    font.pixelSize: 13
+                                    verticalAlignment: Text.AlignVCenter
+                                    leftPadding: 12
+                                }
+                                delegate: ItemDelegate {
+                                    width: autoLockCombo.width
+                                    contentItem: Text { text: modelData; color: textMain; font.pixelSize: 13 }
+                                    background: Rectangle { color: hovered ? bgHover : bgSecondary }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // ========================================================
+                    // 3. BÖLÜM: YEDEKLEME & VERİ YÖNETİMİ
+                    // ========================================================
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 10
+                        spacing: 8
+                        Text {
+                            text: "YEDEKLEME & VERİ YÖNETİMİ"
+                            color: "#888888"
+                            font.pixelSize: 11
+                            font.bold: true
+                            font.letterSpacing: 1.5
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: "#222222" }
+                    }
+                    
+                    // 3.1 Şifreli Kasa Yedeği (.vault)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                Image { source: "qrc:/icons/lock.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Şifreli Yedek (.vault)"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                Text { text: "Şifreleri çözmeden mevcut AES-256 anahtarıyla güvenli taşınabilir yedek oluşturur."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            Button {
+                                text: "Yedek Al"
+                                Layout.preferredWidth: 100
+                                Layout.preferredHeight: 36
+                                background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
+                                contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                onClicked: exportVaultDialog.open()
+                            }
+                        }
+                    }
+                    
+                    // 3.2 Yedekten Geri Yükle (.vault)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                Image { source: "qrc:/icons/download.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Yedekten Geri Yükle / Taşı"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                Text { text: "Windows veya Arch Linux'tan aldığınız .vault yedeğini geri yükleyin veya birleştirin."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            Button {
+                                text: "Geri Yükle"
+                                Layout.preferredWidth: 100
+                                Layout.preferredHeight: 36
+                                background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
+                                contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                onClicked: importVaultDialog.open()
+                            }
+                        }
+                    }
+                    
+                    // 3.3 Şifresiz CSV Dışa Aktarımı
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#141414"; border.color: borderMain
+                                Image { source: "qrc:/icons/edit.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Dışa Aktar (CSV)"; color: textMain; font.pixelSize: 15; font.bold: true }
+                                Text { text: "Tüm şifreleri Excel ve diğer yöneticilerle uyumlu şifresiz CSV olarak aktarır."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            Button {
+                                text: "CSV Aktar"
+                                Layout.preferredWidth: 100
+                                Layout.preferredHeight: 36
+                                background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
+                                contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                onClicked: exportCsvDialog.open()
+                            }
+                        }
+                    }
+                    
+                    // ========================================================
+                    // 4. BÖLÜM: TEHLİKELİ BÖLGE
+                    // ========================================================
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 10
+                        spacing: 8
+                        Text {
+                            text: "TEHLİKELİ BÖLGE"
+                            color: danger
+                            font.pixelSize: 11
+                            font.bold: true
+                            font.letterSpacing: 1.5
+                        }
+                        Rectangle { Layout.fillWidth: true; height: 1; color: "#441a1a" }
+                    }
+                    
+                    // 4.1 Kasayı Tamamen Sıfırla
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 74
+                        color: "#120808"
+                        border.color: "#88ff4444"
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            
+                            Rectangle {
+                                width: 40; height: 40; radius: 8; color: "#22ff4444"; border.color: "#66ff4444"
+                                Image { source: "qrc:/icons/trash.svg"; width: 20; height: 20; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                            }
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Text { text: "Kasayı Tamamen Sıfırla"; color: danger; font.pixelSize: 15; font.bold: true }
+                                Text { text: "Tüm veritabanı kayıtlarını ve anahtarları kalıcı olarak siler. Geri alınamaz."; color: textMuted; font.pixelSize: 13 }
+                            }
+                            
+                            Button {
+                                text: "Kasayı Sil"
+                                Layout.preferredWidth: 90
+                                Layout.preferredHeight: 36
+                                background: Rectangle { color: parent.hovered ? "#ff2222" : danger; radius: 6 }
+                                contentItem: Text { text: parent.text; color: bgMain; font.bold: true; font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                                onClicked: {
+                                    vaultManager.wipeVault()
+                                    vaultModel.clear()
+                                    appState = 0
+                                }
+                            }
+                        }
+                    }
+                    
+                    Item { height: 24 }
                 }
             }
         }
     }
+    } // End of scaledContent
     
     // Add Dialog (Enlarged & Brand-Aware)
     Dialog {
         id: addDialog
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        width: Math.min(540, parent.width - 40)
+        x: (parent.width - width * scale) / 2
+        y: (parent.height - height * scale) / 2
+        width: Math.min(540, parent.width / uiScale - 40)
+        scale: Math.min(1.2, Math.max(0.85, uiScale))
+        transformOrigin: Item.Center
         parent: Overlay.overlay
         modal: true
         
@@ -1790,9 +2002,11 @@ ApplicationWindow {
     // Edit Dialog (Enlarged & Brand-Aware)
     Dialog {
         id: editDialog
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        width: Math.min(540, parent.width - 40)
+        x: (parent.width - width * scale) / 2
+        y: (parent.height - height * scale) / 2
+        width: Math.min(540, parent.width / uiScale - 40)
+        scale: Math.min(1.2, Math.max(0.85, uiScale))
+        transformOrigin: Item.Center
         parent: Overlay.overlay
         modal: true
         
@@ -2164,9 +2378,11 @@ ApplicationWindow {
     // Change Master Password Dialog
     Dialog {
         id: changeMasterPwdDialog
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        width: 440
+        x: (parent.width - width * scale) / 2
+        y: (parent.height - height * scale) / 2
+        width: Math.min(460, parent.width / uiScale - 40)
+        scale: Math.min(1.2, Math.max(0.85, uiScale))
+        transformOrigin: Item.Center
         parent: Overlay.overlay
         modal: true
         
@@ -2336,8 +2552,11 @@ ApplicationWindow {
     // Şifreli Yedek Geri Yükleme Onay Modalı
     Dialog {
         id: restoreConfirmDialog
-        anchors.centerIn: parent
-        width: 440
+        x: (parent.width - width * scale) / 2
+        y: (parent.height - height * scale) / 2
+        width: Math.min(460, parent.width / uiScale - 40)
+        scale: Math.min(1.2, Math.max(0.85, uiScale))
+        transformOrigin: Item.Center
         modal: true
         dim: true
         closePolicy: Dialog.CloseOnEscape | Dialog.CloseOnPressOutside
@@ -2459,6 +2678,8 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: toastVisible ? 24 : -60
+        scale: uiScale
+        transformOrigin: Item.Bottom
         height: 42
         width: toastTextItem.implicitWidth + 56
         radius: 21

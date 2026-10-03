@@ -37,6 +37,8 @@ public:
     Q_INVOKABLE void setWallpaper(const QString& path);
     Q_INVOKABLE qreal getWallpaperOpacity();
     Q_INVOKABLE void setWallpaperOpacity(qreal opacity);
+    Q_INVOKABLE qreal getUiScale();
+    Q_INVOKABLE void setUiScale(qreal scale);
 
     Q_INVOKABLE bool exportToCSV(const QString& filePath);
     Q_INVOKABLE bool exportVaultBackup(const QString& filePath);
