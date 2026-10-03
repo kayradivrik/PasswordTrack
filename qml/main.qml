@@ -37,6 +37,109 @@ ApplicationWindow {
     property string pendingRestoreFile: ""
     property var pendingRestoreInfo: null
     
+    // 55 Popüler Marka / Servis Kataloğu
+    readonly property var brandCatalog: [
+        { id: "google", name: "Google", keys: ["google", "gmail", "youtube", "android", "chrome"] },
+        { id: "outlook", name: "Outlook", keys: ["outlook", "hotmail", "live.com", "msn"] },
+        { id: "microsoft", name: "Microsoft", keys: ["microsoft", "office", "windows", "azure", "onedrive"] },
+        { id: "steam", name: "Steam", keys: ["steam", "valve"] },
+        { id: "epicgames", name: "Epic Games", keys: ["epic", "epic games", "fortnite", "unreal"] },
+        { id: "github", name: "GitHub", keys: ["github", "git"] },
+        { id: "discord", name: "Discord", keys: ["discord"] },
+        { id: "spotify", name: "Spotify", keys: ["spotify"] },
+        { id: "netflix", name: "Netflix", keys: ["netflix"] },
+        { id: "youtube", name: "YouTube", keys: ["youtube", "yt"] },
+        { id: "x", name: "X (Twitter)", keys: ["twitter", "x.com", "tweet"] },
+        { id: "instagram", name: "Instagram", keys: ["instagram", "insta", "ig"] },
+        { id: "reddit", name: "Reddit", keys: ["reddit"] },
+        { id: "twitch", name: "Twitch", keys: ["twitch"] },
+        { id: "apple", name: "Apple", keys: ["apple", "icloud", "itunes", "app store", "ios", "mac"] },
+        { id: "amazon", name: "Amazon", keys: ["amazon", "aws", "prime"] },
+        { id: "openai", name: "OpenAI", keys: ["openai", "chatgpt", "chat gpt", "gpt"] },
+        { id: "playstation", name: "PlayStation", keys: ["playstation", "psn", "ps4", "ps5", "sony"] },
+        { id: "xbox", name: "Xbox", keys: ["xbox", "gamepass"] },
+        { id: "riotgames", name: "Riot Games", keys: ["riot", "valorant", "lol", "league of legends"] },
+        { id: "battlenet", name: "Battle.net", keys: ["battle.net", "battlenet", "blizzard", "overwatch", "diablo", "wow"] },
+        { id: "ubisoft", name: "Ubisoft", keys: ["ubisoft", "uplay"] },
+        { id: "ea", name: "EA", keys: ["electronic arts", "origin", "fifa", "apex", " ea "] },
+        { id: "telegram", name: "Telegram", keys: ["telegram", "tg"] },
+        { id: "whatsapp", name: "WhatsApp", keys: ["whatsapp", "wp"] },
+        { id: "linkedin", name: "LinkedIn", keys: ["linkedin"] },
+        { id: "tiktok", name: "TikTok", keys: ["tiktok"] },
+        { id: "facebook", name: "Facebook", keys: ["facebook", "meta", "fb"] },
+        { id: "dropbox", name: "Dropbox", keys: ["dropbox"] },
+        { id: "notion", name: "Notion", keys: ["notion"] },
+        { id: "figma", name: "Figma", keys: ["figma"] },
+        { id: "gitlab", name: "GitLab", keys: ["gitlab"] },
+        { id: "paypal", name: "PayPal", keys: ["paypal"] },
+        { id: "adobe", name: "Adobe", keys: ["adobe", "photoshop", "illustrator"] },
+        { id: "zoom", name: "Zoom", keys: ["zoom"] },
+        { id: "cloudflare", name: "Cloudflare", keys: ["cloudflare"] },
+        { id: "archlinux", name: "Arch Linux", keys: ["arch linux", "archlinux", "arch"] },
+        { id: "docker", name: "Docker", keys: ["docker"] },
+        { id: "pinterest", name: "Pinterest", keys: ["pinterest"] },
+        { id: "kick", name: "Kick", keys: ["kick"] },
+        { id: "roblox", name: "Roblox", keys: ["roblox"] },
+        { id: "proton", name: "Proton", keys: ["proton", "protonmail", "protonvpn"] },
+        { id: "bitwarden", name: "Bitwarden", keys: ["bitwarden"] },
+        { id: "medium", name: "Medium", keys: ["medium"] },
+        { id: "slack", name: "Slack", keys: ["slack"] },
+        { id: "gog", name: "GOG", keys: ["gog", "galaxy"] },
+        { id: "ebay", name: "eBay", keys: ["ebay"] },
+        { id: "airbnb", name: "Airbnb", keys: ["airbnb"] },
+        { id: "uber", name: "Uber", keys: ["uber"] },
+        { id: "snapchat", name: "Snapchat", keys: ["snapchat", "snap"] },
+        { id: "soundcloud", name: "SoundCloud", keys: ["soundcloud"] },
+        { id: "patreon", name: "Patreon", keys: ["patreon"] },
+        { id: "trello", name: "Trello", keys: ["trello"] },
+        { id: "canva", name: "Canva", keys: ["canva"] },
+        { id: "mega", name: "MEGA", keys: ["mega", "meganz"] }
+    ]
+
+    function getBrandInfo(serviceName) {
+        if (!serviceName) return null;
+        var s = serviceName.toString().trim().toLowerCase();
+        if (s === "") return null;
+        
+        for (var i = 0; i < brandCatalog.length; i++) {
+            var b = brandCatalog[i];
+            if (s === b.id || s === b.name.toLowerCase()) {
+                return { id: b.id, name: b.name, icon: "qrc:/icons/brands/" + b.id + ".svg" };
+            }
+            for (var k = 0; k < b.keys.length; k++) {
+                if (s.indexOf(b.keys[k]) !== -1) {
+                    return { id: b.id, name: b.name, icon: "qrc:/icons/brands/" + b.id + ".svg" };
+                }
+            }
+        }
+        return null;
+    }
+
+    function getMatchingBrands(query) {
+        var q = (query || "").toString().trim().toLowerCase();
+        var results = [];
+        for (var i = 0; i < brandCatalog.length; i++) {
+            var b = brandCatalog[i];
+            if (q === "") {
+                if (i < 15) results.push({ id: b.id, name: b.name, icon: "qrc:/icons/brands/" + b.id + ".svg" });
+            } else {
+                var match = (b.name.toLowerCase().indexOf(q) !== -1) || (b.id.indexOf(q) !== -1);
+                if (!match) {
+                    for (var k = 0; k < b.keys.length; k++) {
+                        if (b.keys[k].indexOf(q) !== -1) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+                if (match) {
+                    results.push({ id: b.id, name: b.name, icon: "qrc:/icons/brands/" + b.id + ".svg" });
+                }
+            }
+        }
+        return results;
+    }
+    
     Image {
         anchors.fill: parent
         source: wallpaperPath
@@ -595,8 +698,8 @@ ApplicationWindow {
                 anchors.leftMargin: 16
                 anchors.rightMargin: 16
                 spacing: 0
-                Text { text: "SERVİS"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.preferredWidth: 200; verticalAlignment: Text.AlignVCenter }
-                Text { text: "KULLANICI ADI"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.preferredWidth: 260; verticalAlignment: Text.AlignVCenter }
+                Text { text: "SERVİS"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.preferredWidth: 220; verticalAlignment: Text.AlignVCenter }
+                Text { text: "KULLANICI ADI"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.preferredWidth: 250; verticalAlignment: Text.AlignVCenter }
                 Text { text: "PAROLA"; color: textMuted; font.bold: true; font.pixelSize: 11; font.letterSpacing: 1; Layout.fillWidth: true; verticalAlignment: Text.AlignVCenter }
                 Item { Layout.preferredWidth: 176 }
             }
@@ -638,8 +741,54 @@ ApplicationWindow {
                         anchors.rightMargin: 16
                         spacing: 0
                         
-                        Text { text: model.service ? model.service : "Bilinmiyor (Eski)"; color: textMain; font.pixelSize: 14; font.bold: true; Layout.preferredWidth: 200; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
-                        Text { text: model.username; color: textMuted; font.pixelSize: 14; Layout.preferredWidth: 260; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
+                        // Servis ve Marka İkonu Kolonu
+                        RowLayout {
+                            Layout.preferredWidth: 220
+                            spacing: 12
+                            
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 6
+                                color: "#141414"
+                                border.color: "#262626"
+                                border.width: 1
+                                
+                                readonly property var brandItem: getBrandInfo(model.service)
+                                
+                                Image {
+                                    anchors.centerIn: parent
+                                    width: 16
+                                    height: 16
+                                    sourceSize.width: 16
+                                    sourceSize.height: 16
+                                    fillMode: Image.PreserveAspectFit
+                                    source: parent.brandItem ? parent.brandItem.icon : ""
+                                    visible: parent.brandItem !== null
+                                }
+                                
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: (model.service && model.service.length > 0) ? model.service.charAt(0).toUpperCase() : "?"
+                                    color: "#888888"
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                    visible: parent.brandItem === null
+                                }
+                            }
+                            
+                            Text {
+                                text: model.service ? model.service : "Bilinmiyor (Eski)"
+                                color: textMain
+                                font.pixelSize: 14
+                                font.bold: true
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                        
+                        Text { text: model.username; color: textMuted; font.pixelSize: 14; Layout.preferredWidth: 250; elide: Text.ElideRight; verticalAlignment: Text.AlignVCenter }
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 8
@@ -1267,119 +1416,363 @@ ApplicationWindow {
         }
     }
     
-    // Add Dialog
+    // Add Dialog (Enlarged & Brand-Aware)
     Dialog {
         id: addDialog
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        width: 440
+        width: Math.min(540, parent.width - 40)
         parent: Overlay.overlay
         modal: true
         
+        property bool showPassword: false
+        readonly property var addBrandInfo: getBrandInfo(addService.text)
+        
+        onAboutToShow: {
+            showPassword = false
+        }
+        
         background: Rectangle {
             color: bgSecondary
-            radius: 8
+            radius: 12
             border.color: borderMain
             border.width: 1
         }
         
         contentItem: ColumnLayout {
-            spacing: 24
+            spacing: 18
             
-            Text {
-                text: "Yeni Şifre Ekle"
-                color: textMain
-                font.pixelSize: 18
-                font.bold: true
-            }
-            
-            TextField {
-                id: addService
-                placeholderText: "Servis adı (Örn: GitHub)"
-                Layout.fillWidth: true
-                Layout.preferredHeight: 44
-                color: textMain
-                background: Rectangle { color: "transparent"; radius: 4; border.color: addService.activeFocus ? accent : borderMain }
-                leftPadding: 12
-            }
-            
-            TextField {
-                id: addUsername
-                placeholderText: "Kullanıcı Adı veya E-posta"
-                Layout.fillWidth: true
-                Layout.preferredHeight: 44
-                color: textMain
-                background: Rectangle { color: "transparent"; radius: 4; border.color: addUsername.activeFocus ? accent : borderMain }
-                leftPadding: 12
-            }
-            
+            // Header
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
+                spacing: 14
+                
+                Rectangle {
+                    width: 44
+                    height: 44
+                    radius: 10
+                    color: "#141414"
+                    border.color: addBrandInfo ? accent : borderMain
+                    border.width: addBrandInfo ? 1.5 : 1
+                    
+                    Image {
+                        anchors.centerIn: parent
+                        width: 22
+                        height: 22
+                        sourceSize.width: 22
+                        sourceSize.height: 22
+                        fillMode: Image.PreserveAspectFit
+                        source: addBrandInfo ? addBrandInfo.icon : ""
+                        visible: addBrandInfo !== null
+                    }
+                    
+                    Image {
+                        anchors.centerIn: parent
+                        width: 20
+                        height: 20
+                        sourceSize.width: 20
+                        sourceSize.height: 20
+                        fillMode: Image.PreserveAspectFit
+                        source: "qrc:/icons/plus.svg"
+                        visible: addBrandInfo === null
+                    }
+                }
+                
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 4
-                    TextField {
-                        id: addPassword
-                        placeholderText: "Parola"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
+                    spacing: 2
+                    Text {
+                        text: "Yeni Şifre Ekle"
                         color: textMain
-                        background: Rectangle { color: "transparent"; radius: 4; border.color: addPassword.activeFocus ? accent : borderMain }
-                        leftPadding: 12
+                        font.pixelSize: 18
+                        font.bold: true
                     }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 4
-                        radius: 2
-                        color: borderMain
-                        visible: addPassword.text.length > 0
-                        Rectangle {
-                            height: parent.height
-                            radius: 2
-                            Behavior on width { NumberAnimation { duration: 200 } }
-                            Behavior on color { ColorAnimation { duration: 200 } }
-                            property int score: addPassword.text.length > 0 ? vaultManager.checkPasswordStrength(addPassword.text) : 0
-                            width: parent.width * (score + 1) / 5
-                            color: score <= 1 ? danger : (score <= 2 ? "#fbbf24" : (score <= 3 ? "#34d399" : "#10b981"))
-                        }
+                    Text {
+                        text: addBrandInfo ? (addBrandInfo.name + " hesabı ekleniyor") : "Kasanıza yeni bir hesap ve parola ekleyin"
+                        color: addBrandInfo ? "#a3a3a3" : textMuted
+                        font.pixelSize: 12
                     }
                 }
                 
                 Button {
-                    Layout.preferredWidth: 44
-                    Layout.preferredHeight: 44
-                    icon.source: "qrc:/icons/dice.svg"
-                    icon.color: hovered ? "#000000" : textMain
-                    icon.width: 20
-                    icon.height: 20
-                    display: AbstractButton.IconOnly
-                    background: Rectangle { 
-                        color: parent.hovered ? textMain : bgHover
-                        radius: 4
+                    Layout.preferredWidth: 32
+                    Layout.preferredHeight: 32
+                    background: Rectangle {
+                        color: parent.hovered ? bgHover : "transparent"
+                        radius: 16
                     }
-                    onClicked: addPassword.text = passwordGen.generate(16)
+                    contentItem: Text {
+                        text: "✕"
+                        color: textMuted
+                        font.pixelSize: 14
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    onClicked: addDialog.close()
                 }
             }
             
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: borderMain
+            }
+            
+            // Servis Alanı ve Canlı Marka Önerileri
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                
+                Text {
+                    text: "SERVİS VEYA MARKA"
+                    color: textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
+                
+                TextField {
+                    id: addService
+                    placeholderText: "Örn: Google, Steam, Epic Games, GitHub..."
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 46
+                    color: textMain
+                    font.pixelSize: 14
+                    background: Rectangle {
+                        color: "#0d0d0d"
+                        radius: 6
+                        border.color: addService.activeFocus ? accent : borderMain
+                        border.width: 1
+                    }
+                    leftPadding: 14
+                    rightPadding: 14
+                }
+                
+                // Canlı Marka Öneri Çipleri (Tak Diye Seçim)
+                Flickable {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 34
+                    contentWidth: addBrandChipsRow.width
+                    contentHeight: 34
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    
+                    Row {
+                        id: addBrandChipsRow
+                        spacing: 8
+                        
+                        Repeater {
+                            model: getMatchingBrands(addService.text)
+                            
+                            Rectangle {
+                                height: 32
+                                width: addChipRow.width + 20
+                                radius: 16
+                                color: addChipMa.hovered ? "#2a2a2a" : "#141414"
+                                border.color: (addBrandInfo && addBrandInfo.id === modelData.id) ? accent : "#2a2a2a"
+                                border.width: 1
+                                
+                                Row {
+                                    id: addChipRow
+                                    anchors.centerIn: parent
+                                    spacing: 6
+                                    
+                                    Image {
+                                        width: 14
+                                        height: 14
+                                        sourceSize.width: 14
+                                        sourceSize.height: 14
+                                        fillMode: Image.PreserveAspectFit
+                                        source: modelData.icon
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    
+                                    Text {
+                                        text: modelData.name
+                                        color: textMain
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                }
+                                
+                                MouseArea {
+                                    id: addChipMa
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        addService.text = modelData.name
+                                        addUsername.forceActiveFocus()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Kullanıcı Adı
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                
+                Text {
+                    text: "KULLANICI ADI VEYA E-POSTA"
+                    color: textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
+                
+                TextField {
+                    id: addUsername
+                    placeholderText: "kullanici@example.com veya rumuz"
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 46
+                    color: textMain
+                    font.pixelSize: 14
+                    background: Rectangle {
+                        color: "#0d0d0d"
+                        radius: 6
+                        border.color: addUsername.activeFocus ? accent : borderMain
+                        border.width: 1
+                    }
+                    leftPadding: 14
+                    rightPadding: 14
+                }
+            }
+            
+            // Parola Alanı
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                
+                Text {
+                    text: "PAROLA"
+                    color: textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
+                
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    
+                    TextField {
+                        id: addPassword
+                        placeholderText: "Hesap parolası"
+                        echoMode: addDialog.showPassword ? TextInput.Normal : TextInput.Password
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 46
+                        color: textMain
+                        font.pixelSize: 14
+                        background: Rectangle {
+                            color: "#0d0d0d"
+                            radius: 6
+                            border.color: addPassword.activeFocus ? accent : borderMain
+                            border.width: 1
+                        }
+                        leftPadding: 14
+                        rightPadding: 14
+                    }
+                    
+                    Button {
+                        Layout.preferredWidth: 46
+                        Layout.preferredHeight: 46
+                        icon.source: addDialog.showPassword ? "qrc:/icons/eye-off.svg" : "qrc:/icons/eye.svg"
+                        icon.color: hovered ? "#000000" : textMain
+                        icon.width: 18
+                        icon.height: 18
+                        display: AbstractButton.IconOnly
+                        background: Rectangle {
+                            color: parent.hovered ? textMain : bgHover
+                            radius: 6
+                        }
+                        onClicked: addDialog.showPassword = !addDialog.showPassword
+                    }
+                    
+                    Button {
+                        Layout.preferredWidth: 46
+                        Layout.preferredHeight: 46
+                        icon.source: "qrc:/icons/dice.svg"
+                        icon.color: hovered ? "#000000" : textMain
+                        icon.width: 18
+                        icon.height: 18
+                        display: AbstractButton.IconOnly
+                        background: Rectangle {
+                            color: parent.hovered ? textMain : bgHover
+                            radius: 6
+                        }
+                        onClicked: addPassword.text = passwordGen.generate(16)
+                    }
+                }
+                
+                // Güç Göstergesi
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 4
+                    radius: 2
+                    color: borderMain
+                    visible: addPassword.text.length > 0
+                    Rectangle {
+                        height: parent.height
+                        radius: 2
+                        Behavior on width { NumberAnimation { duration: 200 } }
+                        Behavior on color { ColorAnimation { duration: 200 } }
+                        property int score: addPassword.text.length > 0 ? vaultManager.checkPasswordStrength(addPassword.text) : 0
+                        width: parent.width * (score + 1) / 5
+                        color: score <= 1 ? danger : (score <= 2 ? "#fbbf24" : (score <= 3 ? "#34d399" : "#10b981"))
+                    }
+                }
+            }
+            
+            Item { Layout.preferredHeight: 4 }
+            
+            // Aksiyon Butonları
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 12
+                
                 Item { Layout.fillWidth: true }
+                
                 Button {
                     text: "İptal"
-                    Layout.preferredHeight: 40
-                    Layout.preferredWidth: 100
-                    background: Rectangle { color: "transparent"; radius: 4; border.color: borderMain; border.width: 1 }
-                    contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 14; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    Layout.preferredHeight: 42
+                    Layout.preferredWidth: 110
+                    background: Rectangle {
+                        color: parent.hovered ? bgHover : "transparent"
+                        radius: 6
+                        border.color: borderMain
+                        border.width: 1
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        color: textMain
+                        font.pixelSize: 14
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     onClicked: addDialog.close()
                 }
+                
                 Button {
                     text: "Kaydet"
-                    Layout.preferredHeight: 40
-                    Layout.preferredWidth: 100
-                    background: Rectangle { color: accent; radius: 4 }
-                    contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 14; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    Layout.preferredHeight: 42
+                    Layout.preferredWidth: 120
+                    background: Rectangle {
+                        color: parent.hovered ? accentHover : accent
+                        radius: 6
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        color: bgMain
+                        font.pixelSize: 14
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     onClicked: {
                         if(addService.text !== "" && addPassword.text !== "") {
                             vaultManager.addEntry(addService.text, addUsername.text, addPassword.text)
@@ -1394,12 +1787,12 @@ ApplicationWindow {
         }
     }
     
-    // Edit Dialog
+    // Edit Dialog (Enlarged & Brand-Aware)
     Dialog {
         id: editDialog
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        width: 440
+        width: Math.min(540, parent.width - 40)
         parent: Overlay.overlay
         modal: true
         
@@ -1407,111 +1800,354 @@ ApplicationWindow {
         property alias serviceText: editService.text
         property alias usernameText: editUsername.text
         property alias passwordText: editPassword.text
+        property bool showPassword: false
+        readonly property var editBrandInfo: getBrandInfo(editService.text)
+        
+        onAboutToShow: {
+            showPassword = false
+        }
         
         background: Rectangle {
             color: bgSecondary
-            radius: 8
+            radius: 12
             border.color: borderMain
             border.width: 1
         }
         
         contentItem: ColumnLayout {
-            spacing: 24
+            spacing: 18
             
-            Text {
-                text: "Şifreyi Düzenle"
-                color: textMain
-                font.pixelSize: 18
-                font.bold: true
-            }
-            
-            TextField {
-                id: editService
-                placeholderText: "Servis adı (Örn: GitHub)"
-                Layout.fillWidth: true
-                Layout.preferredHeight: 44
-                color: textMain
-                background: Rectangle { color: "transparent"; radius: 4; border.color: editService.activeFocus ? accent : borderMain }
-                leftPadding: 12
-            }
-            
-            TextField {
-                id: editUsername
-                placeholderText: "Kullanıcı Adı veya E-posta"
-                Layout.fillWidth: true
-                Layout.preferredHeight: 44
-                color: textMain
-                background: Rectangle { color: "transparent"; radius: 4; border.color: editUsername.activeFocus ? accent : borderMain }
-                leftPadding: 12
-            }
-            
+            // Header
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
+                spacing: 14
+                
+                Rectangle {
+                    width: 44
+                    height: 44
+                    radius: 10
+                    color: "#141414"
+                    border.color: editBrandInfo ? accent : borderMain
+                    border.width: editBrandInfo ? 1.5 : 1
+                    
+                    Image {
+                        anchors.centerIn: parent
+                        width: 22
+                        height: 22
+                        sourceSize.width: 22
+                        sourceSize.height: 22
+                        fillMode: Image.PreserveAspectFit
+                        source: editBrandInfo ? editBrandInfo.icon : ""
+                        visible: editBrandInfo !== null
+                    }
+                    
+                    Image {
+                        anchors.centerIn: parent
+                        width: 20
+                        height: 20
+                        sourceSize.width: 20
+                        sourceSize.height: 20
+                        fillMode: Image.PreserveAspectFit
+                        source: "qrc:/icons/edit.svg"
+                        visible: editBrandInfo === null
+                    }
+                }
+                
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 4
-                    TextField {
-                        id: editPassword
-                        placeholderText: "Parola"
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
+                    spacing: 2
+                    Text {
+                        text: "Şifreyi Düzenle"
                         color: textMain
-                        background: Rectangle { color: "transparent"; radius: 4; border.color: editPassword.activeFocus ? accent : borderMain }
-                        leftPadding: 12
+                        font.pixelSize: 18
+                        font.bold: true
                     }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 4
-                        radius: 2
-                        color: borderMain
-                        visible: editPassword.text.length > 0
-                        Rectangle {
-                            height: parent.height
-                            radius: 2
-                            Behavior on width { NumberAnimation { duration: 200 } }
-                            Behavior on color { ColorAnimation { duration: 200 } }
-                            property int score: editPassword.text.length > 0 ? vaultManager.checkPasswordStrength(editPassword.text) : 0
-                            width: parent.width * (score + 1) / 5
-                            color: score <= 1 ? danger : (score <= 2 ? "#fbbf24" : (score <= 3 ? "#34d399" : "#10b981"))
-                        }
+                    Text {
+                        text: editBrandInfo ? (editBrandInfo.name + " hesabı düzenleniyor") : "Kayıtlı hesap ve parola detaylarını güncelleyin"
+                        color: editBrandInfo ? "#a3a3a3" : textMuted
+                        font.pixelSize: 12
                     }
                 }
                 
                 Button {
-                    Layout.preferredWidth: 44
-                    Layout.preferredHeight: 44
-                    icon.source: "qrc:/icons/dice.svg"
-                    icon.color: hovered ? "#000000" : textMain
-                    icon.width: 20
-                    icon.height: 20
-                    display: AbstractButton.IconOnly
-                    background: Rectangle { 
-                        color: parent.hovered ? textMain : bgHover
-                        radius: 4
+                    Layout.preferredWidth: 32
+                    Layout.preferredHeight: 32
+                    background: Rectangle {
+                        color: parent.hovered ? bgHover : "transparent"
+                        radius: 16
                     }
-                    onClicked: editPassword.text = passwordGen.generate(16)
+                    contentItem: Text {
+                        text: "✕"
+                        color: textMuted
+                        font.pixelSize: 14
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+                    onClicked: editDialog.close()
                 }
             }
             
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: borderMain
+            }
+            
+            // Servis Alanı ve Canlı Marka Önerileri
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                
+                Text {
+                    text: "SERVİS VEYA MARKA"
+                    color: textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
+                
+                TextField {
+                    id: editService
+                    placeholderText: "Örn: Google, Steam, Epic Games, GitHub..."
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 46
+                    color: textMain
+                    font.pixelSize: 14
+                    background: Rectangle {
+                        color: "#0d0d0d"
+                        radius: 6
+                        border.color: editService.activeFocus ? accent : borderMain
+                        border.width: 1
+                    }
+                    leftPadding: 14
+                    rightPadding: 14
+                }
+                
+                // Canlı Marka Öneri Çipleri (Tak Diye Seçim)
+                Flickable {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 34
+                    contentWidth: editBrandChipsRow.width
+                    contentHeight: 34
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    
+                    Row {
+                        id: editBrandChipsRow
+                        spacing: 8
+                        
+                        Repeater {
+                            model: getMatchingBrands(editService.text)
+                            
+                            Rectangle {
+                                height: 32
+                                width: editChipRow.width + 20
+                                radius: 16
+                                color: editChipMa.hovered ? "#2a2a2a" : "#141414"
+                                border.color: (editBrandInfo && editBrandInfo.id === modelData.id) ? accent : "#2a2a2a"
+                                border.width: 1
+                                
+                                Row {
+                                    id: editChipRow
+                                    anchors.centerIn: parent
+                                    spacing: 6
+                                    
+                                    Image {
+                                        width: 14
+                                        height: 14
+                                        sourceSize.width: 14
+                                        sourceSize.height: 14
+                                        fillMode: Image.PreserveAspectFit
+                                        source: modelData.icon
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    
+                                    Text {
+                                        text: modelData.name
+                                        color: textMain
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                }
+                                
+                                MouseArea {
+                                    id: editChipMa
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        editService.text = modelData.name
+                                        editUsername.forceActiveFocus()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Kullanıcı Adı
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                
+                Text {
+                    text: "KULLANICI ADI VEYA E-POSTA"
+                    color: textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
+                
+                TextField {
+                    id: editUsername
+                    placeholderText: "kullanici@example.com veya rumuz"
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 46
+                    color: textMain
+                    font.pixelSize: 14
+                    background: Rectangle {
+                        color: "#0d0d0d"
+                        radius: 6
+                        border.color: editUsername.activeFocus ? accent : borderMain
+                        border.width: 1
+                    }
+                    leftPadding: 14
+                    rightPadding: 14
+                }
+            }
+            
+            // Parola Alanı
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 6
+                
+                Text {
+                    text: "PAROLA"
+                    color: textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
+                
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    
+                    TextField {
+                        id: editPassword
+                        placeholderText: "Hesap parolası"
+                        echoMode: editDialog.showPassword ? TextInput.Normal : TextInput.Password
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 46
+                        color: textMain
+                        font.pixelSize: 14
+                        background: Rectangle {
+                            color: "#0d0d0d"
+                            radius: 6
+                            border.color: editPassword.activeFocus ? accent : borderMain
+                            border.width: 1
+                        }
+                        leftPadding: 14
+                        rightPadding: 14
+                    }
+                    
+                    Button {
+                        Layout.preferredWidth: 46
+                        Layout.preferredHeight: 46
+                        icon.source: editDialog.showPassword ? "qrc:/icons/eye-off.svg" : "qrc:/icons/eye.svg"
+                        icon.color: hovered ? "#000000" : textMain
+                        icon.width: 18
+                        icon.height: 18
+                        display: AbstractButton.IconOnly
+                        background: Rectangle {
+                            color: parent.hovered ? textMain : bgHover
+                            radius: 6
+                        }
+                        onClicked: editDialog.showPassword = !editDialog.showPassword
+                    }
+                    
+                    Button {
+                        Layout.preferredWidth: 46
+                        Layout.preferredHeight: 46
+                        icon.source: "qrc:/icons/dice.svg"
+                        icon.color: hovered ? "#000000" : textMain
+                        icon.width: 18
+                        icon.height: 18
+                        display: AbstractButton.IconOnly
+                        background: Rectangle {
+                            color: parent.hovered ? textMain : bgHover
+                            radius: 6
+                        }
+                        onClicked: editPassword.text = passwordGen.generate(16)
+                    }
+                }
+                
+                // Güç Göstergesi
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 4
+                    radius: 2
+                    color: borderMain
+                    visible: editPassword.text.length > 0
+                    Rectangle {
+                        height: parent.height
+                        radius: 2
+                        Behavior on width { NumberAnimation { duration: 200 } }
+                        Behavior on color { ColorAnimation { duration: 200 } }
+                        property int score: editPassword.text.length > 0 ? vaultManager.checkPasswordStrength(editPassword.text) : 0
+                        width: parent.width * (score + 1) / 5
+                        color: score <= 1 ? danger : (score <= 2 ? "#fbbf24" : (score <= 3 ? "#34d399" : "#10b981"))
+                    }
+                }
+            }
+            
+            Item { Layout.preferredHeight: 4 }
+            
+            // Aksiyon Butonları
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 12
+                
                 Item { Layout.fillWidth: true }
+                
                 Button {
                     text: "İptal"
-                    Layout.preferredHeight: 40
-                    Layout.preferredWidth: 100
-                    background: Rectangle { color: "transparent"; radius: 4; border.color: borderMain; border.width: 1 }
-                    contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 14; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    Layout.preferredHeight: 42
+                    Layout.preferredWidth: 110
+                    background: Rectangle {
+                        color: parent.hovered ? bgHover : "transparent"
+                        radius: 6
+                        border.color: borderMain
+                        border.width: 1
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        color: textMain
+                        font.pixelSize: 14
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     onClicked: editDialog.close()
                 }
+                
                 Button {
                     text: "Güncelle"
-                    Layout.preferredHeight: 40
-                    Layout.preferredWidth: 100
-                    background: Rectangle { color: accent; radius: 4 }
-                    contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 14; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    Layout.preferredHeight: 42
+                    Layout.preferredWidth: 120
+                    background: Rectangle {
+                        color: parent.hovered ? accentHover : accent
+                        radius: 6
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        color: bgMain
+                        font.pixelSize: 14
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     onClicked: {
                         if(editService.text !== "" && editPassword.text !== "") {
                             vaultManager.updateEntry(editDialog.entryId, editService.text, editUsername.text, editPassword.text)
