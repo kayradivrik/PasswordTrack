@@ -397,171 +397,108 @@ ApplicationWindow {
                 }
             }
             
-            // Parola Sağlığı Paneli (Health Dashboard Bar)
+            // Parola Sağlığı & Filtre Çubuğu (Minimalist Bar)
             Rectangle {
                 Layout.fillWidth: true
-                height: 52
-                color: wallpaperPath !== "" ? "#d90c0c0c" : "#0d0d0d"
+                height: 38
+                color: wallpaperPath !== "" ? "#d90a0a0a" : "#0d0d0d"
                 border.color: borderMain
-                radius: 8
+                radius: 6
                 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 16
-                    spacing: 20
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: 12
+                    spacing: 14
                     
-                    // 1. Genel Güvenlik Skoru
+                    // Sol: Sağlık Göstergesi (Kompakt ve Sade)
                     RowLayout {
-                        spacing: 10
+                        spacing: 8
                         Layout.alignment: Qt.AlignVCenter
                         
-                        Rectangle {
-                            width: 30; height: 30; radius: 15
-                            color: healthScore >= 80 ? "#1a10b981" : (healthScore >= 50 ? "#1afbbf24" : "#1aff4444")
-                            border.color: healthScore >= 80 ? "#10b981" : (healthScore >= 50 ? "#fbbf24" : danger)
-                            border.width: 1.5
-                            Text {
-                                anchors.centerIn: parent
-                                text: healthScore
-                                color: healthScore >= 80 ? "#10b981" : (healthScore >= 50 ? "#fbbf24" : danger)
-                                font.pixelSize: 11
-                                font.bold: true
-                            }
+                        Image {
+                            source: "qrc:/icons/shield.svg"
+                            sourceSize: Qt.size(13, 13)
+                            opacity: 0.8
                         }
                         
-                        ColumnLayout {
-                            spacing: 1
-                            Text { 
-                                text: "Kasa Sağlığı: %" + healthScore
-                                color: textMain
-                                font.pixelSize: 13
-                                font.bold: true 
-                            }
-                            Text { 
-                                text: healthScore >= 85 ? "Mükemmel Koruma" : (healthScore >= 60 ? "İyileştirme Önerilir" : "Riskli Şifreler Mevcut")
-                                color: healthScore >= 85 ? "#34d399" : (healthScore >= 60 ? "#fbbf24" : danger)
-                                font.pixelSize: 10 
+                        Text { 
+                            text: "Kasa Sağlığı: %" + healthScore
+                            color: textMain
+                            font.pixelSize: 12
+                            font.bold: true 
+                        }
+                        
+                        Rectangle {
+                            width: 36
+                            height: 3
+                            radius: 1.5
+                            color: "#222222"
+                            Rectangle {
+                                width: parent.width * Math.min(1.0, Math.max(0.0, healthScore / 100.0))
+                                height: parent.height
+                                radius: 1.5
+                                color: healthScore >= 80 ? "#10b981" : (healthScore >= 50 ? "#fbbf24" : danger)
                             }
                         }
                     }
                     
                     Rectangle {
-                        width: 1; height: 24; color: borderMain; Layout.alignment: Qt.AlignVCenter
+                        width: 1
+                        height: 14
+                        color: borderMain
+                        Layout.alignment: Qt.AlignVCenter
                     }
                     
-                    // 2. Filtre Badgeleri (Tümü, Tekrar Eden, Zayıf, Sızıntı)
+                    // Sağ: Sade Filtre Sekmeleri (Minimalist Segment Tabs)
                     RowLayout {
-                        spacing: 8
+                        spacing: 4
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter
                         
-                        // Tümü
-                        Rectangle {
-                            height: 30
-                            width: allTxt.implicitWidth + 24
-                            radius: 15
-                            color: healthFilter === "all" ? (wallpaperPath !== "" ? "#33ffffff" : "#222222") : "transparent"
-                            border.color: healthFilter === "all" ? accent : borderMain
+                        Repeater {
+                            model: [
+                                { id: "all", label: "Tümü", count: totalCount },
+                                { id: "reused", label: "Tekrar", count: reusedCount },
+                                { id: "weak", label: "Zayıf", count: weakCount },
+                                { id: "pwned", label: "Sızıntı", count: pwnedCount }
+                            ]
                             
-                            RowLayout {
-                                anchors.centerIn: parent
-                                spacing: 6
-                                Text { id: allTxt; text: "Tümü (" + totalCount + ")"; color: healthFilter === "all" ? textMain : textMuted; font.pixelSize: 12; font.bold: healthFilter === "all" }
-                            }
-                            MouseArea {
-                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                onClicked: { healthFilter = "all"; loadData() }
-                            }
-                        }
-                        
-                        // Tekrar Eden (Reused)
-                        Rectangle {
-                            height: 30
-                            width: reusedTxt.implicitWidth + (reusedCount > 0 ? 28 : 22)
-                            radius: 15
-                            color: healthFilter === "reused" ? (wallpaperPath !== "" ? "#33ffffff" : "#222222") : (reusedCount > 0 ? "#15fbbf24" : "transparent")
-                            border.color: healthFilter === "reused" ? "#fbbf24" : (reusedCount > 0 ? "#4dfbbf24" : borderMain)
-                            
-                            RowLayout {
-                                anchors.centerIn: parent
-                                spacing: 5
-                                Image {
-                                    source: "qrc:/icons/copy.svg"
-                                    sourceSize: Qt.size(11, 11)
-                                    visible: reusedCount > 0
+                            delegate: Rectangle {
+                                id: tabItem
+                                readonly property bool isSelected: healthFilter === modelData.id
+                                readonly property bool isHovered: tabMouse.containsMouse
+                                
+                                height: 26
+                                width: tabTxt.implicitWidth + 16
+                                radius: 4
+                                color: isSelected ? (wallpaperPath !== "" ? "#33ffffff" : "#222222") : (isHovered ? "#161616" : "transparent")
+                                border.color: isSelected ? "#333333" : "transparent"
+                                border.width: 1
+                                
+                                Text {
+                                    id: tabTxt
+                                    anchors.centerIn: parent
+                                    text: modelData.label + " (" + modelData.count + ")"
+                                    color: isSelected ? textMain : (modelData.count > 0 && modelData.id !== "all" ? "#cccccc" : textMuted)
+                                    font.pixelSize: 11
+                                    font.bold: isSelected
                                 }
-                                Text { 
-                                    id: reusedTxt
-                                    text: reusedCount > 0 ? "Tekrar Eden (" + reusedCount + ")" : "Tekrar: 0"
-                                    color: reusedCount > 0 ? "#fbbf24" : textMuted
-                                    font.pixelSize: 12
-                                    font.bold: healthFilter === "reused"
+                                
+                                MouseArea {
+                                    id: tabMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        if (modelData.id === "all") {
+                                            healthFilter = "all"
+                                        } else {
+                                            healthFilter = healthFilter === modelData.id ? "all" : modelData.id
+                                        }
+                                        loadData()
+                                    }
                                 }
-                            }
-                            MouseArea {
-                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                onClicked: { healthFilter = healthFilter === "reused" ? "all" : "reused"; loadData() }
-                            }
-                        }
-                        
-                        // Zayıf (Weak)
-                        Rectangle {
-                            height: 30
-                            width: weakTxt.implicitWidth + (weakCount > 0 ? 28 : 22)
-                            radius: 15
-                            color: healthFilter === "weak" ? (wallpaperPath !== "" ? "#33ffffff" : "#222222") : (weakCount > 0 ? "#15ff4444" : "transparent")
-                            border.color: healthFilter === "weak" ? danger : (weakCount > 0 ? "#4dff4444" : borderMain)
-                            
-                            RowLayout {
-                                anchors.centerIn: parent
-                                spacing: 5
-                                Image {
-                                    source: "qrc:/icons/alert.svg"
-                                    sourceSize: Qt.size(11, 11)
-                                    visible: weakCount > 0
-                                }
-                                Text { 
-                                    id: weakTxt
-                                    text: weakCount > 0 ? "Zayıf (" + weakCount + ")" : "Zayıf: 0"
-                                    color: weakCount > 0 ? danger : textMuted
-                                    font.pixelSize: 12
-                                    font.bold: healthFilter === "weak"
-                                }
-                            }
-                            MouseArea {
-                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                onClicked: { healthFilter = healthFilter === "weak" ? "all" : "weak"; loadData() }
-                            }
-                        }
-                        
-                        // Sızdırılmış (Pwned)
-                        Rectangle {
-                            height: 30
-                            width: pwnedTxt.implicitWidth + (pwnedCount > 0 ? 28 : 22)
-                            radius: 15
-                            color: healthFilter === "pwned" ? (wallpaperPath !== "" ? "#33ffffff" : "#222222") : (pwnedCount > 0 ? "#25ff4444" : "transparent")
-                            border.color: healthFilter === "pwned" ? danger : (pwnedCount > 0 ? danger : borderMain)
-                            
-                            RowLayout {
-                                anchors.centerIn: parent
-                                spacing: 5
-                                Image {
-                                    source: "qrc:/icons/shield.svg"
-                                    sourceSize: Qt.size(11, 11)
-                                    visible: pwnedCount > 0
-                                }
-                                Text { 
-                                    id: pwnedTxt
-                                    text: pwnedCount > 0 ? "Sızıntı (" + pwnedCount + ")" : "Sızıntı: 0"
-                                    color: pwnedCount > 0 ? danger : textMuted
-                                    font.pixelSize: 12
-                                    font.bold: healthFilter === "pwned"
-                                }
-                            }
-                            MouseArea {
-                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                onClicked: { healthFilter = healthFilter === "pwned" ? "all" : "pwned"; loadData() }
                             }
                         }
                         
