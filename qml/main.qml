@@ -640,48 +640,42 @@ ApplicationWindow {
                             spacing: 8
                             Text { text: showPassword ? model.password : "••••••••••••"; color: textMuted; font.pixelSize: 14; font.letterSpacing: showPassword ? 0 : 2; verticalAlignment: Text.AlignVCenter }
                             
-                            // Tekrar Eden Şifre Rozeti
+                            // Birleşik Güvenlik Uyarısı Rozeti (Tek rozet, çoklu mesaj)
                             Rectangle {
-                                visible: model.isReused !== undefined ? model.isReused : false
-                                width: 20; height: 20; radius: 4
-                                color: "#22fbbf24"
-                                border.color: "#fbbf24"
+                                readonly property bool hasPwned: model.isPwned === true
+                                readonly property bool hasWeak: model.isWeak === true
+                                readonly property bool hasReused: model.isReused === true
+                                readonly property bool hasIssue: hasPwned || hasWeak || hasReused
+                                
+                                visible: hasIssue
+                                width: 22
+                                height: 22
+                                radius: 4
+                                color: (hasPwned || hasWeak) ? "#26ff4444" : "#26fbbf24"
+                                border.color: (hasPwned || hasWeak) ? danger : "#fbbf24"
                                 border.width: 1
+                                
                                 Image {
-                                    source: "qrc:/icons/copy.svg"
-                                    sourceSize: Qt.size(11, 11)
                                     anchors.centerIn: parent
+                                    source: (hasPwned || hasWeak) ? "qrc:/icons/alert.svg" : "qrc:/icons/copy.svg"
+                                    sourceSize: Qt.size(12, 12)
                                 }
-                                ToolTip.visible: reusedHover.containsMouse
-                                ToolTip.text: "UYARI: Bu şifre birden fazla hesapta kullanılmış!"
-                                MouseArea { id: reusedHover; anchors.fill: parent; hoverEnabled: true }
-                            }
-                            
-                            // Zayıf Şifre Rozeti
-                            Rectangle {
-                                visible: model.isWeak !== undefined ? model.isWeak : false
-                                width: 20; height: 20; radius: 4
-                                color: "#22ff4444"
-                                border.color: danger
-                                border.width: 1
-                                Image {
-                                    source: "qrc:/icons/alert.svg"
-                                    sourceSize: Qt.size(11, 11)
-                                    anchors.centerIn: parent
+                                
+                                ToolTip.visible: warnHover.containsMouse
+                                ToolTip.delay: 200
+                                ToolTip.text: {
+                                    var msgs = []
+                                    if (hasPwned) msgs.push("• Sızıntı Uyarısı: Bu şifre veri sızıntılarında (HIBP) açığa çıkmış!")
+                                    if (hasWeak) msgs.push("• Zayıf Şifre: Kolay tahmin edilebilir, en az 8+ karmaşık karakter önerilir.")
+                                    if (hasReused) msgs.push("• Tekrar Eden Şifre: Birden fazla hesapta ortak kullanılmış.")
+                                    return msgs.join("\n")
                                 }
-                                ToolTip.visible: weakHover.containsMouse
-                                ToolTip.text: "UYARI: Bu şifre zayıf veya kolay tahmin edilebilir!"
-                                MouseArea { id: weakHover; anchors.fill: parent; hoverEnabled: true }
-                            }
-                            
-                            // Sızıntı Rozeti
-                            Image {
-                                source: "qrc:/icons/alert.svg"
-                                sourceSize: Qt.size(16, 16)
-                                visible: model.isPwned !== undefined ? model.isPwned : false
-                                ToolTip.visible: hoverArea.containsMouse
-                                ToolTip.text: "KRİTİK UYARI: Bu şifre daha önce veri sızıntılarında (HIBP) açığa çıkmış!"
-                                MouseArea { id: hoverArea; anchors.fill: parent; hoverEnabled: true }
+                                
+                                MouseArea {
+                                    id: warnHover
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                }
                             }
                             Item { Layout.fillWidth: true }
                         }
