@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(VaultApp VERSION 1.0 LANGUAGES CXX)
+project(VoidPass VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,9 +24,9 @@ set(HEADERS
 # QML ve ikon dosyalarını QRC'ye ekle
 set(RESOURCES resources.qrc)
 
-add_executable(VaultApp WIN32 ${SOURCES} ${HEADERS} ${RESOURCES})
+add_executable(VoidPass WIN32 ${SOURCES} ${HEADERS} ${RESOURCES})
 
-target_link_libraries(VaultApp PRIVATE 
+target_link_libraries(VoidPass PRIVATE 
     Qt6::Quick 
     Qt6::Qml 
     Qt6::Sql 

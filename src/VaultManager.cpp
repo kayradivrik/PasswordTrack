@@ -293,7 +293,7 @@ void VaultManager::checkPwnedAsync(int id, const QString& plainPassword) {
     QString suffix = hash.mid(5);
     
     QNetworkRequest request(QUrl("https://api.pwnedpasswords.com/range/" + prefix));
-    request.setHeader(QNetworkRequest::UserAgentHeader, "VaultApp-Portfolio-Project");
+    request.setHeader(QNetworkRequest::UserAgentHeader, "VoidPass-Security-Client");
     
     QNetworkReply* reply = netManager->get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply, id, suffix]() {
@@ -581,7 +581,7 @@ bool VaultManager::exportVaultBackup(const QString& filePath) {
     }
 
     QJsonObject root;
-    root["format"] = "PasswordTrack.VaultBackup";
+    root["format"] = "VoidPass.VaultBackup";
     root["version"] = 1;
     root["created_at"] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
     root["salt"] = salt;
@@ -623,7 +623,8 @@ QVariantMap VaultManager::inspectVaultBackup(const QString& filePath) {
     if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return res;
 
     QJsonObject root = doc.object();
-    if (root["format"].toString() != "PasswordTrack.VaultBackup") return res;
+    QString fmt = root["format"].toString();
+    if (fmt != "VoidPass.VaultBackup" && fmt != "PasswordTrack.VaultBackup") return res;
     if (!root.contains("salt") || !root.contains("canary") || !root.contains("entries")) return res;
 
     QString salt = root["salt"].toString();

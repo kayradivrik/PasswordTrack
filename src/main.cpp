@@ -18,7 +18,8 @@ int main(int argc, char *argv[]) {
     qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
     QGuiApplication app(argc, argv);
     app.setOrganizationName("KayraPortfolio");
-    app.setApplicationName("VaultApp");
+    app.setApplicationName("VoidPass");
+    app.setApplicationDisplayName("VoidPass");
     app.setWindowIcon(QIcon(":/icons/shield.svg"));
 
     VaultManager vaultManager;

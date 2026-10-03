@@ -10,7 +10,7 @@ ApplicationWindow {
     height: 620
     minimumWidth: 780
     minimumHeight: 480
-    title: "PasswordTrack"
+    title: "VoidPass"
     color: bgMain
 
     readonly property color bgMain: "#000000"
@@ -89,7 +89,7 @@ ApplicationWindow {
         title: "Şifreli Kasayı Dışa Aktar (.vault)"
         fileMode: FileDialog.SaveFile
         defaultSuffix: "vault"
-        nameFilters: ["PasswordTrack Vault (*.vault)"]
+        nameFilters: ["VoidPass Vault (*.vault)"]
         onAccepted: {
             if (vaultManager.exportVaultBackup(selectedFile)) {
                 showToast("Şifreli .vault yedeği başarıyla oluşturuldu.")
@@ -103,7 +103,7 @@ ApplicationWindow {
         id: importVaultDialog
         title: "Şifreli Kasayı İçe Aktar (.vault)"
         fileMode: FileDialog.OpenFile
-        nameFilters: ["PasswordTrack Vault (*.vault)", "Tüm Dosyalar (*)"]
+        nameFilters: ["VoidPass Vault (*.vault)", "Tüm Dosyalar (*)"]
         onAccepted: {
             var info = vaultManager.inspectVaultBackup(selectedFile)
             if (!info.valid) {
@@ -164,7 +164,7 @@ ApplicationWindow {
             }
             
             Text {
-                text: "Secure Vault"
+                text: "VoidPass"
                 color: textMain
                 font.pixelSize: 24
                 font.bold: true
@@ -845,13 +845,9 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
                 
                 ScrollBar.vertical: ScrollBar {
-                    parent: parent
-                    anchors.top: parent.top
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
+                    policy: ScrollBar.AsNeeded
                     width: 6
                     contentItem: Rectangle {
                         implicitWidth: 6

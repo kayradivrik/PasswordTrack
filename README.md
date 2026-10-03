@@ -1,4 +1,4 @@
-# PasswordTrack 🛡️
+# VoidPass 🛡️
 
 Modern, minimalist ve **Zero-Knowledge (Sıfır Bilgi)** mimarisine sahip C++ / Qt6 masaüstü parola yöneticisi.
 
@@ -8,14 +8,17 @@ Modern, minimalist ve **Zero-Knowledge (Sıfır Bilgi)** mimarisine sahip C++ / 
 
 * **Zero-Knowledge Mimarisi:** Tüm şifreleme ve çözme işlemleri tamamen istemci tarafında (yerel cihazınızda) gerçekleşir. Ana parolanız asla kaydedilmez.
 * **Askeri Düzeyde Şifreleme:** AES-256-GCM ve PBKDF2-HMAC-SHA256 (100.000 iterasyon) ile koruma.
-* **Parola Sağlığı Paneli:**
+* **Şifreli Yedekleme ve Taşıma (.vault):** Şifreleri çözmeden, mevcut AES-256 anahtarıyla şifrelenmiş taşınabilir tek bir `.vault` dosyası oluşturma ve Windows ile Arch Linux arasında güvenle taşıma / geri yükleme.
+* **Ana Parola Değiştirme (Atomic Re-encryption):** Eski parolayı doğrulayıp yeni bir salt ve anahtar türeterek tüm kasayı atomik SQLite transaction ile tek seferde yeniden şifreleme.
+* **Parola Sağlığı & Güvenlik Göstergesi:**
   * Kasa genel güvenlik skoru (%0 - %100).
-  * Zayıf, tekrar eden (reused) ve veri sızıntılarına (HIBP) karışmış parolaları anında tespit etme ve tek tıkla filtreleme.
+  * Zayıf, tekrar eden (reused) ve veri sızıntılarına (HIBP) karışmış parolaları anında tespit etme, tek ve kompakt rozette çoklu uyarı gösterme.
 * **Pano Güvenliği (Clipboard Clearance):** Kopyalanan parolalar panoda açık kalmaz; 30 saniye sonra otomatik olarak hafızadan temizlenir.
 * **Şifre Düzenleme (Edit):** Mevcut kayıtları silmeden doğrudan güncelleme imkanı.
 * **Otomatik Kilit (Auto-Lock):** Belirlenen süre boyunca (1 dk, 5 dk, 10 dk) fare ve klavye hareketsizliği algılandığında kasanın RAM'deki şifreleme anahtarlarını anında sıfırlayarak kilit ekranına dönmesi.
 * **Anti-Screenshot Koruması (Windows):** OBS, Snipping Tool veya ekran yakalama yazılımlarından pencere içeriğini siyah ekran olarak koruma (`WDA_EXCLUDEFROMCAPTURE`).
 * **Veri Dışa Aktarma (CSV):** Şifreleri Excel ile tam uyumlu UTF-8 BOM CSV formatında dışa aktarma.
+* **Duyarlı (Responsive) Arayüz & ScrollView:** 1024x768 gibi küçük ekranlarda dahi akıcı kaydırma ve tam görünürlük.
 * **Özelleştirilebilir Duvar Kağıdı:** Ayarlanabilir opaklık ve akıllı Vignette (karartma) filtresi ile her zaman okunabilir tasarım.
 
 ---
@@ -39,7 +42,7 @@ cmake --build build -j$(nproc)
 
 ### 3. Çalıştırın
 ```bash
-./build/VaultApp
+./build/VoidPass
 ```
 
 ---
@@ -49,7 +52,7 @@ cmake --build build -j$(nproc)
 ```powershell
 cmake -B build -S .
 cmake --build build --config Release
-.\build\VaultApp.exe
+.\build\VoidPass.exe
 ```
 
 ---
