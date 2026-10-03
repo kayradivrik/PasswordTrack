@@ -6,9 +6,11 @@ import QtQuick.Dialogs
 
 ApplicationWindow {
     visible: true
-    width: 900
-    height: 600
-    title: "Secure Vault"
+    width: 960
+    height: 620
+    minimumWidth: 780
+    minimumHeight: 480
+    title: "PasswordTrack"
     color: bgMain
 
     readonly property color bgMain: "#000000"
@@ -343,8 +345,11 @@ ApplicationWindow {
         
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 40
-            spacing: 32
+            anchors.leftMargin: Math.max(20, Math.min(36, parent.width * 0.035))
+            anchors.rightMargin: Math.max(20, Math.min(36, parent.width * 0.035))
+            anchors.topMargin: Math.max(16, Math.min(28, parent.height * 0.035))
+            anchors.bottomMargin: Math.max(16, Math.min(28, parent.height * 0.035))
+            spacing: parent.height < 650 ? 16 : 24
             
             // Top Bar
             RowLayout {
@@ -772,17 +777,17 @@ ApplicationWindow {
         Button {
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            anchors.margins: 40
-            width: 48
-            height: 48
+            anchors.margins: parent.width < 900 ? 20 : 32
+            width: 44
+            height: 44
             icon.source: "qrc:/icons/settings.svg"
             icon.color: hovered ? "#000000" : textMuted
-            icon.width: 24
-            icon.height: 24
+            icon.width: 22
+            icon.height: 22
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: parent.hovered ? textMain : bgSecondary
-                radius: 24
+                radius: 22
                 border.color: borderMain
             }
             onClicked: appState = 3
@@ -796,8 +801,11 @@ ApplicationWindow {
         
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 40
-            spacing: 32
+            anchors.topMargin: 24
+            anchors.bottomMargin: 16
+            anchors.leftMargin: Math.max(20, (parent.width - 840) / 2)
+            anchors.rightMargin: Math.max(20, (parent.width - 840) / 2)
+            spacing: 20
             
             // Top Bar with Back Button
             RowLayout {
@@ -805,16 +813,16 @@ ApplicationWindow {
                 spacing: 16
                 
                 Button {
-                    Layout.preferredWidth: 44
-                    Layout.preferredHeight: 44
+                    Layout.preferredWidth: 40
+                    Layout.preferredHeight: 40
                     icon.source: "qrc:/icons/back.svg"
                     icon.color: hovered ? "#000000" : textMain
-                    icon.width: 24
-                    icon.height: 24
+                    icon.width: 20
+                    icon.height: 20
                     display: AbstractButton.IconOnly
                     background: Rectangle {
                         color: parent.hovered ? textMain : "transparent"
-                        radius: 22
+                        radius: 20
                         border.color: borderMain
                     }
                     onClicked: appState = 2
@@ -831,19 +839,38 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
             }
             
-            // Settings List
-            ColumnLayout {
+            // Scrollable Settings List
+            ScrollView {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignTop
-                spacing: 16
+                Layout.fillHeight: true
+                clip: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
                 
-                // 1. Anti-Screenshot Toggle
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 72
-                    color: "transparent"
-                    border.color: borderMain
-                    radius: 8
+                ScrollBar.vertical: ScrollBar {
+                    parent: parent
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    width: 6
+                    contentItem: Rectangle {
+                        implicitWidth: 6
+                        radius: 3
+                        color: parent.pressed ? "#666666" : (parent.hovered ? "#444444" : "#2a2a2a")
+                    }
+                }
+                
+                ColumnLayout {
+                    width: parent.width - 12
+                    spacing: 12
+                    
+                    // 1. Anti-Screenshot Toggle
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 72
+                        color: "transparent"
+                        border.color: borderMain
+                        radius: 8
                     
                     RowLayout {
                         anchors.fill: parent
@@ -1235,7 +1262,8 @@ ApplicationWindow {
                     }
                 }
                 
-                Item { Layout.fillHeight: true }
+                    Item { height: 16 }
+                }
             }
         }
     }
