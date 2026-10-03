@@ -647,9 +647,9 @@ ApplicationWindow {
                             
                             // Birleşik Güvenlik Uyarısı Rozeti (Tek rozet, çoklu mesaj)
                             Rectangle {
-                                readonly property bool hasPwned: model.isPwned === true
-                                readonly property bool hasWeak: model.isWeak === true
-                                readonly property bool hasReused: model.isReused === true
+                                readonly property bool hasPwned: Boolean(model.isPwned)
+                                readonly property bool hasWeak: Boolean(model.isWeak)
+                                readonly property bool hasReused: Boolean(model.isReused)
                                 readonly property bool hasIssue: hasPwned || hasWeak || hasReused
                                 
                                 visible: hasIssue
@@ -662,8 +662,11 @@ ApplicationWindow {
                                 
                                 Image {
                                     anchors.centerIn: parent
+                                    width: 14
+                                    height: 14
+                                    sourceSize: Qt.size(14, 14)
+                                    fillMode: Image.PreserveAspectFit
                                     source: (hasPwned || hasWeak) ? "qrc:/icons/alert.svg" : "qrc:/icons/copy.svg"
-                                    sourceSize: Qt.size(12, 12)
                                 }
                                 
                                 ToolTip.visible: warnHover.containsMouse
