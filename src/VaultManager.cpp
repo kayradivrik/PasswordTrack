@@ -352,6 +352,21 @@ void VaultManager::setUiScale(qreal scale) {
     settings.setValue("uiScale", scale);
 }
 
+QString VaultManager::getLanguage() {
+    QSettings settings;
+    return settings.value("appLanguage", "tr").toString();
+}
+
+void VaultManager::setLanguage(const QString& lang) {
+    QSettings settings;
+    settings.setValue("appLanguage", lang);
+}
+
+bool VaultManager::hasSelectedLanguage() {
+    QSettings settings;
+    return settings.contains("appLanguage");
+}
+
 bool VaultManager::exportToCSV(const QString& filePath) {
     if (encryptionKey.isEmpty()) return false;
 

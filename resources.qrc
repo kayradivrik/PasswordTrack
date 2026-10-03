@@ -17,7 +17,9 @@
         <file>icons/download.svg</file>
         <file>icons/image.svg</file>
         <file>icons/edit.svg</file>
-            <file>icons/brands/adobe.svg</file>
+        <file>icons/flag_tr.svg</file>
+        <file>icons/flag_us.svg</file>
+        <file>icons/brands/adobe.svg</file>
         <file>icons/brands/airbnb.svg</file>
         <file>icons/brands/amazon.svg</file>
         <file>icons/brands/apple.svg</file>

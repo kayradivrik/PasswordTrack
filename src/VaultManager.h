@@ -39,6 +39,9 @@ public:
     Q_INVOKABLE void setWallpaperOpacity(qreal opacity);
     Q_INVOKABLE qreal getUiScale();
     Q_INVOKABLE void setUiScale(qreal scale);
+    Q_INVOKABLE QString getLanguage();
+    Q_INVOKABLE void setLanguage(const QString& lang);
+    Q_INVOKABLE bool hasSelectedLanguage();
 
     Q_INVOKABLE bool exportToCSV(const QString& filePath);
     Q_INVOKABLE bool exportVaultBackup(const QString& filePath);

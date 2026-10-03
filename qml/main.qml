@@ -27,6 +27,258 @@ ApplicationWindow {
     property string wallpaperPath: vaultManager.getWallpaper()
     property real wallpaperOpacity: vaultManager.getWallpaperOpacity()
     property real uiScale: vaultManager.getUiScale()
+    property string appLang: vaultManager.getLanguage() || "tr"
+
+    readonly property var translations: ({
+        tr: {
+            app_title: "VoidPass",
+            welcome_title: "Hoş Geldiniz",
+            welcome_subtitle: "Lütfen kullanmak istediğiniz dili seçin",
+            welcome_tr_title: "Türkçe",
+            welcome_tr_desc: "Türkiye • Türkçe ile devam et",
+            welcome_en_title: "English",
+            welcome_en_desc: "United States • Continue in English",
+            
+            setup_title: "Hoş Geldiniz",
+            setup_desc: "Kasanızı güvenceye almak için güçlü bir ana parola belirleyin.",
+            setup_pw_label: "Ana Parola",
+            setup_pw_placeholder: "En az 8 karakter önerilir",
+            setup_confirm_label: "Ana Parolayı Onayla",
+            setup_confirm_placeholder: "Parolayı tekrar girin",
+            setup_create_btn: "Kasayı Oluştur",
+            
+            login_title: "Kasa Kilitli",
+            login_desc: "Şifrelerinize erişmek için ana parolanızı girin.",
+            login_pw_label: "Ana Parola",
+            login_pw_placeholder: "Ana parolanızı girin",
+            login_unlock_btn: "Kasanın Kilidini Aç",
+            
+            search_placeholder: "Kasalarda ara... (Servis veya e-posta)",
+            add_password_btn: "+ Yeni Şifre Ekle",
+            
+            health_score: "Güvenlik Puanı",
+            health_all: "Tümü",
+            health_leaked: "Sızdırılmış",
+            health_weak: "Zayıf",
+            health_reused: "Tekrar Eden",
+            
+            col_service: "SERVİS",
+            col_username: "KULLANICI ADI",
+            col_password: "PAROLA",
+            
+            tooltip_hide: "Gizle",
+            tooltip_show: "Göster",
+            tooltip_copy: "Kopyala (30s sonra silinir)",
+            tooltip_edit: "Düzenle",
+            tooltip_delete: "Sil",
+            
+            toast_deleted: "Şifre silindi.",
+            toast_saved: "Şifre kaydedildi.",
+            toast_updated: "Şifre güncellendi.",
+            toast_copied: "Şifre panoya kopyalandı! (30 sn sonra silinecek)",
+            toast_lang_tr: "Dil Türkçe olarak ayarlandı.",
+            toast_lang_en: "Language set to English.",
+            
+            dialog_add_title: "Yeni Şifre Ekle",
+            dialog_edit_title: "Şifreyi Düzenle",
+            dialog_service_label: "Servis / Platform",
+            dialog_service_placeholder: "Örn: Google, Netflix, Steam...",
+            dialog_service_suggest: "Önerilen Popüler Servisler:",
+            dialog_username_label: "Kullanıcı Adı veya E-Posta",
+            dialog_username_placeholder: "Örn: ornek@gmail.com",
+            dialog_password_label: "Parola",
+            dialog_password_placeholder: "Güçlü bir parola girin",
+            dialog_generate_btn: "Üret",
+            dialog_cancel_btn: "İptal",
+            dialog_save_btn: "Kaydet",
+            dialog_update_btn: "Değişiklikleri Kaydet",
+            
+            settings_title: "Ayarlar",
+            settings_subtitle: "Görünüm, güvenlik ve veri yönetimi tercihlerinizi yapılandırın",
+            settings_back: "Geri Dön",
+            settings_cat_appearance: "GÖRÜNÜM & ARAYÜZ",
+            settings_cat_security: "GÜVENLİK & KORUMA",
+            settings_cat_backup: "YEDEKLEME & VERİ YÖNETİMİ",
+            settings_cat_danger: "TEHLİKELİ BÖLGE",
+            
+            settings_lang_title: "Uygulama Dili (Language)",
+            settings_lang_desc: "Arayüz dilini Türkçe veya İngilizce olarak seçin.",
+            
+            settings_scale_title: "Arayüz Ölçeği (UI Scale)",
+            settings_scale_desc: "Pencere boyutuna ve ekran çözünürlüğüne göre arayüzü ölçeklendirin.",
+            settings_scale_fit: "Ekranıma Tam Uydur",
+            
+            settings_wallpaper_title: "Arka Plan Görseli",
+            settings_wallpaper_desc: "Kasanızın arkasına özel bir duvar kağıdı ekleyin.",
+            settings_wallpaper_remove: "Görseli Kaldır",
+            settings_wallpaper_select: "Görsel Seç",
+            settings_wallpaper_opacity: "Görsel Saydamlığı",
+            
+            settings_autolock_title: "Otomatik Kilit Zaman Aşımı",
+            settings_autolock_desc: "Belirtilen süre boyunca işlem yapılmazsa kasa kilitlenir.",
+            settings_autolock_disabled: "Devre Dışı",
+            settings_autolock_mins: "Dakika",
+            
+            settings_screenprotect_title: "Ekran Görüntüsü Koruması",
+            settings_screenprotect_desc: "Ekran kaydı ve ekran alıntısı araçlarına karşı pencereyi karartır.",
+            settings_screenprotect_active: "Aktif (Korumalı)",
+            settings_screenprotect_disabled: "Devre Dışı (Görünür)",
+            
+            settings_master_pw_title: "Ana Parolayı Güncelle",
+            settings_master_pw_desc: "Mevcut parolanızı doğrulayarak tüm kasayı yeni anahtarla yeniden şifreler.",
+            settings_master_pw_btn: "Parolayı Değiştir...",
+            
+            settings_backup_vault_title: "Şifreli Yedek (.vault)",
+            settings_backup_vault_desc: "Mevcut AES-256 anahtarıyla şifrelenmiş taşınabilir yedek dosyası oluşturun veya yükleyin.",
+            settings_backup_export_btn: "Yedek Al (.vault)",
+            settings_backup_import_btn: "Yedekten Geri Yükle",
+            
+            settings_csv_title: "Düz Metin Dışa Aktarma (CSV)",
+            settings_csv_desc: "Şifreleri Excel / CSV formatında düz metin olarak dışa aktarır (Güvensiz).",
+            settings_csv_export_btn: "CSV Olarak İndir",
+            
+            settings_wipe_title: "Tüm Kasayı Sıfırla (Wipe Vault)",
+            settings_wipe_desc: "Tüm şifreleri ve kasayı geri döndürülemez şekilde kalıcı olarak siler.",
+            settings_wipe_btn: "Kasayı Sıfırla...",
+            
+            sort_newest: "En Yeni",
+            sort_oldest: "En Eski",
+            sort_az: "Servis (A-Z)",
+            sort_za: "Servis (Z-A)",
+            
+            lock_tooltip: "Kasayı Kilitle"
+        },
+        en: {
+            app_title: "VoidPass",
+            welcome_title: "Welcome",
+            welcome_subtitle: "Please select your preferred language",
+            welcome_tr_title: "Türkçe",
+            welcome_tr_desc: "Turkey • Continue in Turkish",
+            welcome_en_title: "English",
+            welcome_en_desc: "United States • Continue in English",
+            
+            setup_title: "Welcome",
+            setup_desc: "Set a strong master password to secure your vault.",
+            setup_pw_label: "Master Password",
+            setup_pw_placeholder: "Minimum 8 characters recommended",
+            setup_confirm_label: "Confirm Master Password",
+            setup_confirm_placeholder: "Re-enter your password",
+            setup_create_btn: "Create Vault",
+            
+            login_title: "Vault Locked",
+            login_desc: "Enter your master password to access your passwords.",
+            login_pw_label: "Master Password",
+            login_pw_placeholder: "Enter master password",
+            login_unlock_btn: "Unlock Vault",
+            
+            search_placeholder: "Search vault... (Service or email)",
+            add_password_btn: "+ Add New Password",
+            
+            health_score: "Security Score",
+            health_all: "All",
+            health_leaked: "Leaked",
+            health_weak: "Weak",
+            health_reused: "Reused",
+            
+            col_service: "SERVICE",
+            col_username: "USERNAME",
+            col_password: "PASSWORD",
+            
+            tooltip_hide: "Hide",
+            tooltip_show: "Show",
+            tooltip_copy: "Copy (cleared in 30s)",
+            tooltip_edit: "Edit",
+            tooltip_delete: "Delete",
+            
+            toast_deleted: "Password deleted.",
+            toast_saved: "Password saved.",
+            toast_updated: "Password updated.",
+            toast_copied: "Password copied to clipboard! (Cleared in 30s)",
+            toast_lang_tr: "Dil Türkçe olarak ayarlandı.",
+            toast_lang_en: "Language set to English.",
+            
+            dialog_add_title: "Add New Password",
+            dialog_edit_title: "Edit Password",
+            dialog_service_label: "Service / Platform",
+            dialog_service_placeholder: "e.g. Google, Netflix, Steam...",
+            dialog_service_suggest: "Suggested Popular Services:",
+            dialog_username_label: "Username or Email",
+            dialog_username_placeholder: "e.g. user@example.com",
+            dialog_password_label: "Password",
+            dialog_password_placeholder: "Enter a strong password",
+            dialog_generate_btn: "Generate",
+            dialog_cancel_btn: "Cancel",
+            dialog_save_btn: "Save",
+            dialog_update_btn: "Save Changes",
+            
+            settings_title: "Settings",
+            settings_subtitle: "Configure appearance, security and data management preferences",
+            settings_back: "Go Back",
+            settings_cat_appearance: "APPEARANCE & INTERFACE",
+            settings_cat_security: "SECURITY & PROTECTION",
+            settings_cat_backup: "BACKUP & DATA MANAGEMENT",
+            settings_cat_danger: "DANGER ZONE",
+            
+            settings_lang_title: "Application Language",
+            settings_lang_desc: "Select the interface language between Turkish and English.",
+            
+            settings_scale_title: "UI Scale",
+            settings_scale_desc: "Scale the interface to fit your window size and screen resolution.",
+            settings_scale_fit: "Fit to Screen",
+            
+            settings_wallpaper_title: "Background Wallpaper",
+            settings_wallpaper_desc: "Set a custom wallpaper behind your vault interface.",
+            settings_wallpaper_remove: "Remove Wallpaper",
+            settings_wallpaper_select: "Select Image",
+            settings_wallpaper_opacity: "Wallpaper Opacity",
+            
+            settings_autolock_title: "Auto-Lock Timeout",
+            settings_autolock_desc: "Automatically locks the vault after inactive duration.",
+            settings_autolock_disabled: "Disabled",
+            settings_autolock_mins: "Minutes",
+            
+            settings_screenprotect_title: "Screenshot Protection",
+            settings_screenprotect_desc: "Blackens the window for screen recorders and capture tools.",
+            settings_screenprotect_active: "Active (Protected)",
+            settings_screenprotect_disabled: "Disabled (Visible)",
+            
+            settings_master_pw_title: "Update Master Password",
+            settings_master_pw_desc: "Re-encrypts the entire vault with a new master key.",
+            settings_master_pw_btn: "Change Password...",
+            
+            settings_backup_vault_title: "Encrypted Backup (.vault)",
+            settings_backup_vault_desc: "Create or restore an AES-256 encrypted portable backup file.",
+            settings_backup_export_btn: "Export Backup (.vault)",
+            settings_backup_import_btn: "Restore from Backup",
+            
+            settings_csv_title: "Plaintext Export (CSV)",
+            settings_csv_desc: "Exports all passwords as unencrypted plaintext CSV (Insecure).",
+            settings_csv_export_btn: "Download CSV",
+            
+            settings_wipe_title: "Wipe Entire Vault",
+            settings_wipe_desc: "Permanently and irreversibly deletes all stored credentials.",
+            settings_wipe_btn: "Wipe Vault...",
+            
+            sort_newest: "Newest",
+            sort_oldest: "Oldest",
+            sort_az: "Service (A-Z)",
+            sort_za: "Service (Z-A)",
+            
+            lock_tooltip: "Lock Vault"
+        }
+    })
+
+    function t(key) {
+        var lang = translations[appLang] || translations["tr"]
+        return (lang && lang[key] !== undefined) ? lang[key] : key
+    }
+
+    // Dinamik ve Sabit Tablo Kolon Genişlikleri (Tam ekranda eşit yayılma ve sıfır kayma)
+    readonly property int tableAvailableWidth: Math.max(540, (passwordList ? passwordList.width : 900) - 32 - 176)
+    readonly property int colServiceWidth: Math.max(180, Math.floor(tableAvailableWidth * 0.28))
+    readonly property int colUsernameWidth: Math.max(220, Math.floor(tableAvailableWidth * 0.38))
+    readonly property int colPasswordWidth: Math.max(160, tableAvailableWidth - colServiceWidth - colUsernameWidth)
+    readonly property int colActionsWidth: 176
     
     // Parola Sağlığı Paneli Durumu
     property int healthScore: 100
@@ -487,8 +739,8 @@ ApplicationWindow {
                 
                 TextField {
                     id: searchInput
-                    placeholderText: "Ara..."
-                    Layout.preferredWidth: 240
+                    placeholderText: t("search_placeholder")
+                    Layout.preferredWidth: 260
                     Layout.preferredHeight: 40
                     Layout.alignment: Qt.AlignVCenter
                     verticalAlignment: TextInput.AlignVCenter
@@ -507,7 +759,7 @@ ApplicationWindow {
                     Layout.preferredWidth: 160
                     Layout.preferredHeight: 40
                     Layout.alignment: Qt.AlignVCenter
-                    model: ["Yeniden Eskiye", "Eskiden Yeniye", "İsim (A-Z)", "İsim (Z-A)"]
+                    model: [t("sort_newest"), t("sort_oldest"), t("sort_az"), t("sort_za")]
                     
                     background: Rectangle {
                         color: "transparent"
@@ -556,9 +808,9 @@ ApplicationWindow {
                 }
                 
                 Button {
-                    text: "Yeni Şifre"
+                    text: t("add_password_btn")
                     Layout.preferredHeight: 40
-                    Layout.preferredWidth: 130
+                    Layout.preferredWidth: 160
                     Layout.alignment: Qt.AlignVCenter
                     contentItem: Item {
                         anchors.fill: parent
@@ -570,10 +822,10 @@ ApplicationWindow {
                                 sourceSize: Qt.size(16, 16)
                             }
                             Text {
-                                text: "Yeni Şifre"
+                                text: t("add_password_btn")
                                 color: bgMain
                                 font.bold: true
-                                font.pixelSize: 14
+                                font.pixelSize: 13
                             }
                         }
                     }
@@ -611,7 +863,7 @@ ApplicationWindow {
                         }
                         
                         Text { 
-                            text: "Kasa Sağlığı: %" + healthScore
+                            text: (appLang === "en" ? "Vault Health: %" : "Kasa Sağlığı: %") + healthScore
                             color: textMain
                             font.pixelSize: 12
                             font.bold: true 
@@ -646,10 +898,10 @@ ApplicationWindow {
                         
                         Repeater {
                             model: [
-                                { id: "all", label: "Tümü", count: totalCount },
-                                { id: "reused", label: "Tekrar", count: reusedCount },
-                                { id: "weak", label: "Zayıf", count: weakCount },
-                                { id: "pwned", label: "Sızıntı", count: pwnedCount }
+                                { id: "all", label: t("health_all"), count: totalCount },
+                                { id: "reused", label: t("health_reused"), count: reusedCount },
+                                { id: "weak", label: t("health_weak"), count: weakCount },
+                                { id: "pwned", label: t("health_leaked"), count: pwnedCount }
                             ]
                             
                             delegate: Rectangle {
@@ -710,14 +962,14 @@ ApplicationWindow {
                 spacing: 0
                 
                 Item {
-                    Layout.preferredWidth: 220
-                    Layout.minimumWidth: 220
-                    Layout.maximumWidth: 220
+                    Layout.preferredWidth: colServiceWidth
+                    Layout.minimumWidth: colServiceWidth
+                    Layout.maximumWidth: colServiceWidth
                     Layout.fillHeight: true
                     Text { 
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                        text: "SERVİS"
+                        text: t("col_service")
                         color: textMuted
                         font.bold: true
                         font.pixelSize: 11
@@ -726,14 +978,14 @@ ApplicationWindow {
                 }
                 
                 Item {
-                    Layout.preferredWidth: 250
-                    Layout.minimumWidth: 250
-                    Layout.maximumWidth: 250
+                    Layout.preferredWidth: colUsernameWidth
+                    Layout.minimumWidth: colUsernameWidth
+                    Layout.maximumWidth: colUsernameWidth
                     Layout.fillHeight: true
                     Text { 
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                        text: "KULLANICI ADI"
+                        text: t("col_username")
                         color: textMuted
                         font.bold: true
                         font.pixelSize: 11
@@ -742,12 +994,14 @@ ApplicationWindow {
                 }
                 
                 Item {
-                    Layout.fillWidth: true
+                    Layout.preferredWidth: colPasswordWidth
+                    Layout.minimumWidth: colPasswordWidth
+                    Layout.maximumWidth: colPasswordWidth
                     Layout.fillHeight: true
                     Text { 
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                        text: "PAROLA"
+                        text: t("col_password")
                         color: textMuted
                         font.bold: true
                         font.pixelSize: 11
@@ -756,9 +1010,9 @@ ApplicationWindow {
                 }
                 
                 Item { 
-                    Layout.preferredWidth: 176
-                    Layout.minimumWidth: 176
-                    Layout.maximumWidth: 176
+                    Layout.preferredWidth: colActionsWidth
+                    Layout.minimumWidth: colActionsWidth
+                    Layout.maximumWidth: colActionsWidth
                     Layout.fillHeight: true
                 }
             }
@@ -800,11 +1054,11 @@ ApplicationWindow {
                         anchors.rightMargin: 16
                         spacing: 0
                         
-                        // Kolon 1: Servis ve Marka İkonu (Sabit 220px)
+                        // Kolon 1: Servis ve Marka İkonu (Orantılı Dağılım)
                         Item {
-                            Layout.preferredWidth: 220
-                            Layout.minimumWidth: 220
-                            Layout.maximumWidth: 220
+                            Layout.preferredWidth: colServiceWidth
+                            Layout.minimumWidth: colServiceWidth
+                            Layout.maximumWidth: colServiceWidth
                             Layout.fillHeight: true
                             clip: true
                             
@@ -858,11 +1112,11 @@ ApplicationWindow {
                             }
                         }
                         
-                        // Kolon 2: Kullanıcı Adı / E-posta (Sabit 250px - Asla kaymaz)
+                        // Kolon 2: Kullanıcı Adı / E-posta (Orantılı Dağılım)
                         Item {
-                            Layout.preferredWidth: 250
-                            Layout.minimumWidth: 250
-                            Layout.maximumWidth: 250
+                            Layout.preferredWidth: colUsernameWidth
+                            Layout.minimumWidth: colUsernameWidth
+                            Layout.maximumWidth: colUsernameWidth
                             Layout.fillHeight: true
                             clip: true
                             
@@ -878,9 +1132,11 @@ ApplicationWindow {
                             }
                         }
                         
-                        // Kolon 3: Parola ve Rozet (Kalan tüm genişlik, izole)
+                        // Kolon 3: Parola ve Rozet (Orantılı Dağılım - Sıfır Jitter)
                         Item {
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: colPasswordWidth
+                            Layout.minimumWidth: colPasswordWidth
+                            Layout.maximumWidth: colPasswordWidth
                             Layout.fillHeight: true
                             clip: true
                             
@@ -947,11 +1203,11 @@ ApplicationWindow {
                             }
                         }
                         
-                        // Kolon 4: Eylemler (Sabit 176px)
+                        // Kolon 4: Eylemler (Sabit Genişlik)
                         Item {
-                            Layout.preferredWidth: 176
-                            Layout.minimumWidth: 176
-                            Layout.maximumWidth: 176
+                            Layout.preferredWidth: colActionsWidth
+                            Layout.minimumWidth: colActionsWidth
+                            Layout.maximumWidth: colActionsWidth
                             Layout.fillHeight: true
                             
                             RowLayout {
@@ -968,7 +1224,7 @@ ApplicationWindow {
                                     icon.height: 16
                                     display: AbstractButton.IconOnly
                                     ToolTip.visible: hovered
-                                    ToolTip.text: showPassword ? "Gizle" : "Göster"
+                                    ToolTip.text: showPassword ? t("tooltip_hide") : t("tooltip_show")
                                     background: Rectangle { 
                                         color: parent.hovered ? textMain : "transparent"
                                         radius: 4 
@@ -985,7 +1241,7 @@ ApplicationWindow {
                                     icon.height: 16
                                     display: AbstractButton.IconOnly
                                     ToolTip.visible: hovered
-                                    ToolTip.text: "Kopyala (30s sonra silinir)"
+                                    ToolTip.text: t("tooltip_copy")
                                     background: Rectangle { 
                                         color: parent.hovered ? textMain : "transparent"
                                         radius: 4 
@@ -1002,7 +1258,7 @@ ApplicationWindow {
                                     icon.height: 16
                                     display: AbstractButton.IconOnly
                                     ToolTip.visible: hovered
-                                    ToolTip.text: "Düzenle"
+                                    ToolTip.text: t("tooltip_edit")
                                     background: Rectangle { 
                                         color: parent.hovered ? textMain : "transparent"
                                         radius: 4 
@@ -1025,7 +1281,7 @@ ApplicationWindow {
                                     icon.height: 16
                                     display: AbstractButton.IconOnly
                                     ToolTip.visible: hovered
-                                    ToolTip.text: "Sil"
+                                    ToolTip.text: t("tooltip_delete")
                                     background: Rectangle { 
                                         color: parent.hovered ? danger : "transparent"
                                         radius: 4 
@@ -1033,7 +1289,7 @@ ApplicationWindow {
                                     onClicked: {
                                         vaultManager.deleteEntry(model.id)
                                         loadData()
-                                        showToast("Şifre silindi.")
+                                        showToast(t("toast_deleted"))
                                     }
                                 }
                             }
@@ -1102,14 +1358,14 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     spacing: 2
                     Text {
-                        text: "Ayarlar"
+                        text: t("settings_title")
                         color: textMain
                         font.pixelSize: 22
                         font.bold: true
                         font.letterSpacing: 1
                     }
                     Text {
-                        text: "Görünüm, güvenlik ve veri yönetimi tercihlerinizi yapılandırın"
+                        text: t("settings_subtitle")
                         color: textMuted
                         font.pixelSize: 12
                     }
@@ -1145,13 +1401,128 @@ ApplicationWindow {
                         Layout.topMargin: 4
                         spacing: 8
                         Text {
-                            text: "GÖRÜNÜM & ARAYÜZ"
+                            text: t("settings_cat_appearance")
                             color: "#888888"
                             font.pixelSize: 11
                             font.bold: true
                             font.letterSpacing: 1.5
                         }
                         Rectangle { Layout.fillWidth: true; height: 1; color: "#222222" }
+                    }
+                    
+                    // 1.0 Dil Seçimi (Türkçe & English Yuvarlak Bayraklar)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 88
+                        color: bgSecondary
+                        border.color: borderMain
+                        radius: 8
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 20
+                            anchors.rightMargin: 20
+                            spacing: 16
+                            
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 4
+                                Text { 
+                                    text: t("settings_lang_title")
+                                    color: textMain
+                                    font.pixelSize: 14
+                                    font.bold: true 
+                                }
+                                Text { 
+                                    text: t("settings_lang_desc")
+                                    color: textMuted
+                                    font.pixelSize: 12 
+                                }
+                            }
+                            
+                            RowLayout {
+                                spacing: 10
+                                Layout.alignment: Qt.AlignVCenter
+                                
+                                // Türkçe Butonu
+                                Rectangle {
+                                    width: 124
+                                    height: 42
+                                    radius: 8
+                                    color: appLang === "tr" ? "#222222" : (btnTrHov.hovered ? "#161616" : "#0f0f0f")
+                                    border.color: appLang === "tr" ? "#ffffff" : "#333333"
+                                    border.width: appLang === "tr" ? 2 : 1
+                                    
+                                    RowLayout {
+                                        anchors.centerIn: parent
+                                        spacing: 8
+                                        Image {
+                                            width: 22
+                                            height: 22
+                                            source: "qrc:/icons/flag_tr.svg"
+                                            sourceSize: Qt.size(22, 22)
+                                        }
+                                        Text {
+                                            text: "Türkçe"
+                                            color: appLang === "tr" ? textMain : textMuted
+                                            font.pixelSize: 13
+                                            font.bold: appLang === "tr"
+                                        }
+                                    }
+                                    
+                                    MouseArea {
+                                        id: btnTrHov
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            appLang = "tr"
+                                            vaultManager.setLanguage("tr")
+                                            showToast(t("toast_lang_tr"))
+                                        }
+                                    }
+                                }
+                                
+                                // English Butonu
+                                Rectangle {
+                                    width: 124
+                                    height: 42
+                                    radius: 8
+                                    color: appLang === "en" ? "#222222" : (btnEnHov.hovered ? "#161616" : "#0f0f0f")
+                                    border.color: appLang === "en" ? "#ffffff" : "#333333"
+                                    border.width: appLang === "en" ? 2 : 1
+                                    
+                                    RowLayout {
+                                        anchors.centerIn: parent
+                                        spacing: 8
+                                        Image {
+                                            width: 22
+                                            height: 22
+                                            source: "qrc:/icons/flag_us.svg"
+                                            sourceSize: Qt.size(22, 22)
+                                        }
+                                        Text {
+                                            text: "English"
+                                            color: appLang === "en" ? textMain : textMuted
+                                            font.pixelSize: 13
+                                            font.bold: appLang === "en"
+                                        }
+                                    }
+                                    
+                                    MouseArea {
+                                        id: btnEnHov
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            appLang = "en"
+                                            vaultManager.setLanguage("en")
+                                            showToast(t("toast_lang_en"))
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     
                     // 1.1 Arayüz Ölçeği
@@ -1374,7 +1745,7 @@ ApplicationWindow {
                         Layout.topMargin: 10
                         spacing: 8
                         Text {
-                            text: "GÜVENLİK & KORUMA"
+                            text: t("settings_cat_security")
                             color: "#888888"
                             font.pixelSize: 11
                             font.bold: true
@@ -1554,7 +1925,7 @@ ApplicationWindow {
                         Layout.topMargin: 10
                         spacing: 8
                         Text {
-                            text: "YEDEKLEME & VERİ YÖNETİMİ"
+                            text: t("settings_cat_backup")
                             color: "#888888"
                             font.pixelSize: 11
                             font.bold: true
@@ -1679,7 +2050,7 @@ ApplicationWindow {
                         Layout.topMargin: 10
                         spacing: 8
                         Text {
-                            text: "TEHLİKELİ BÖLGE"
+                            text: t("settings_cat_danger")
                             color: danger
                             font.pixelSize: 11
                             font.bold: true
@@ -2781,6 +3152,237 @@ ApplicationWindow {
         }
     }
     
+    // Başlangıç Dil Seçim Ekranı (İlk Açılışta veya Ayarlardan Çağrılabilir)
+    Dialog {
+        id: welcomeLanguageDialog
+        anchors.centerIn: parent
+        width: Math.min(520, parent.width - 40)
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        dim: true
+        parent: Overlay.overlay
+        
+        background: Rectangle {
+            color: "#0f0f0f"
+            radius: 16
+            border.color: "#2a2a2a"
+            border.width: 1
+            
+            // Soft gradient glow accent on top
+            Rectangle {
+                anchors.top: parent.top
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.8
+                height: 2
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: "transparent" }
+                    GradientStop { position: 0.5; color: "#ffffff" }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+            }
+        }
+        
+        contentItem: ColumnLayout {
+            spacing: 20
+            
+            // Header with Shield Icon & Title
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: 12
+                spacing: 10
+                
+                Rectangle {
+                    Layout.alignment: Qt.AlignHCenter
+                    width: 54
+                    height: 54
+                    radius: 27
+                    color: "#161616"
+                    border.color: "#333333"
+                    border.width: 1
+                    
+                    Image {
+                        anchors.centerIn: parent
+                        width: 26
+                        height: 26
+                        source: "qrc:/icons/shield.svg"
+                    }
+                }
+                
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "VoidPass"
+                    color: textMain
+                    font.pixelSize: 22
+                    font.bold: true
+                    font.letterSpacing: 2
+                }
+                
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "Hoş Geldiniz • Welcome"
+                    color: textMain
+                    font.pixelSize: 15
+                    font.bold: true
+                }
+                
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "Lütfen kullanmak istediğiniz dili seçin\nPlease choose your preferred language"
+                    color: textMuted
+                    font.pixelSize: 12
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
+            
+            // 2 Büyük Yuvarlak Bayrak Seçim Kartı
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 12
+                Layout.rightMargin: 12
+                spacing: 16
+                
+                // Türkçe Kartı
+                Rectangle {
+                    id: trCard
+                    Layout.fillWidth: true
+                    height: 140
+                    radius: 12
+                    color: trMouse.hovered ? "#181818" : "#121212"
+                    border.color: trMouse.hovered ? "#ffffff" : "#282828"
+                    border.width: trMouse.hovered ? 2 : 1
+                    scale: trMouse.pressed ? 0.98 : (trMouse.hovered ? 1.02 : 1.0)
+                    
+                    Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on border.color { ColorAnimation { duration: 150 } }
+                    
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 10
+                        
+                        // Yuvarlak Türk Bayrağı
+                        Rectangle {
+                            Layout.alignment: Qt.AlignHCenter
+                            width: 58
+                            height: 58
+                            radius: 29
+                            color: "transparent"
+                            clip: true
+                            border.color: trMouse.hovered ? "#e30a17" : "#444444"
+                            border.width: 2
+                            
+                            Image {
+                                anchors.fill: parent
+                                source: "qrc:/icons/flag_tr.svg"
+                                sourceSize: Qt.size(58, 58)
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+                        
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "Türkçe"
+                            color: textMain
+                            font.pixelSize: 15
+                            font.bold: true
+                        }
+                        
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "Türkiye"
+                            color: textMuted
+                            font.pixelSize: 11
+                        }
+                    }
+                    
+                    MouseArea {
+                        id: trMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            appLang = "tr"
+                            vaultManager.setLanguage("tr")
+                            welcomeLanguageDialog.close()
+                            showToast("Dil Türkçe olarak ayarlandı.")
+                        }
+                    }
+                }
+                
+                // English Card
+                Rectangle {
+                    id: enCard
+                    Layout.fillWidth: true
+                    height: 140
+                    radius: 12
+                    color: enMouse.hovered ? "#181818" : "#121212"
+                    border.color: enMouse.hovered ? "#ffffff" : "#282828"
+                    border.width: enMouse.hovered ? 2 : 1
+                    scale: enMouse.pressed ? 0.98 : (enMouse.hovered ? 1.02 : 1.0)
+                    
+                    Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on border.color { ColorAnimation { duration: 150 } }
+                    
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 10
+                        
+                        // Yuvarlak Amerikan Bayrağı
+                        Rectangle {
+                            Layout.alignment: Qt.AlignHCenter
+                            width: 58
+                            height: 58
+                            radius: 29
+                            color: "transparent"
+                            clip: true
+                            border.color: enMouse.hovered ? "#0052b4" : "#444444"
+                            border.width: 2
+                            
+                            Image {
+                                anchors.fill: parent
+                                source: "qrc:/icons/flag_us.svg"
+                                sourceSize: Qt.size(58, 58)
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+                        
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "English"
+                            color: textMain
+                            font.pixelSize: 15
+                            font.bold: true
+                        }
+                        
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: "United States"
+                            color: textMuted
+                            font.pixelSize: 11
+                        }
+                    }
+                    
+                    MouseArea {
+                        id: enMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            appLang = "en"
+                            vaultManager.setLanguage("en")
+                            welcomeLanguageDialog.close()
+                            showToast("Language set to English.")
+                        }
+                    }
+                }
+            }
+            
+            Item { height: 10 }
+        }
+    }
+
     // Modern Glassmorphic Toast Notification
     Rectangle {
         id: toast
@@ -2874,6 +3476,12 @@ ApplicationWindow {
 
             vaultModel.append(entry)
             vaultManager.checkPwnedAsync(entry.id, entry.password)
+        }
+    }
+
+    Component.onCompleted: {
+        if (!vaultManager.hasSelectedLanguage()) {
+            welcomeLanguageDialog.open()
         }
     }
 }
