@@ -101,6 +101,7 @@ ApplicationWindow {
         function onVaultLocked() {
             addDialog.close()
             editDialog.close()
+            changeMasterPwdDialog.close()
             exportCsvDialog.close()
             vaultModel.clear()
             appState = 1
@@ -997,7 +998,43 @@ ApplicationWindow {
                     }
                 }
                 
-                // 4. Wipe Vault
+                // 4. Ana Parolayı Değiştir
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 72
+                    color: "transparent"
+                    border.color: borderMain
+                    radius: 8
+                    
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 16
+                        spacing: 16
+                        
+                        Rectangle {
+                            width: 40; height: 40; radius: 8; color: bgSecondary
+                            Image { source: "qrc:/icons/key.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                        }
+                        
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text { text: "Ana Parolayı Değiştir"; color: textMain; font.pixelSize: 15; font.bold: true }
+                            Text { text: "Kasa anahtarını günceller ve tüm kayıtları arka planda yeniden şifreler."; color: textMuted; font.pixelSize: 13 }
+                        }
+                        
+                        Button {
+                            text: "Değiştir"
+                            Layout.preferredWidth: 100
+                            Layout.preferredHeight: 36
+                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
+                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                            onClicked: changeMasterPwdDialog.open()
+                        }
+                    }
+                }
+                
+                // 5. Wipe Vault
                 Rectangle {
                     Layout.fillWidth: true
                     height: 72
@@ -1380,6 +1417,178 @@ ApplicationWindow {
                             editDialog.close()
                             loadData()
                             showToast("Şifre başarıyla güncellendi.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Change Master Password Dialog
+    Dialog {
+        id: changeMasterPwdDialog
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        width: 440
+        parent: Overlay.overlay
+        modal: true
+        
+        onAboutToShow: {
+            currentMasterInput.text = ""
+            newMasterInput.text = ""
+            confirmMasterInput.text = ""
+            changePwdError.text = ""
+            showNewMasterPwd = false
+        }
+        
+        property bool showNewMasterPwd: false
+        
+        background: Rectangle {
+            color: bgSecondary
+            radius: 8
+            border.color: borderMain
+            border.width: 1
+        }
+        
+        contentItem: ColumnLayout {
+            spacing: 20
+            
+            Text {
+                text: "Ana Parolayı Güncelle"
+                color: textMain
+                font.pixelSize: 18
+                font.bold: true
+            }
+            
+            Text {
+                text: "Yeni bir ana parola belirleyin. Tüm kasanız yeni anahtarınızla anında yeniden şifrelenecektir."
+                color: textMuted
+                font.pixelSize: 13
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            
+            TextField {
+                id: currentMasterInput
+                placeholderText: "Mevcut Ana Parola"
+                echoMode: TextInput.Password
+                Layout.fillWidth: true
+                Layout.preferredHeight: 44
+                color: textMain
+                background: Rectangle { color: "transparent"; radius: 4; border.color: currentMasterInput.activeFocus ? accent : borderMain }
+                leftPadding: 12
+            }
+            
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 4
+                
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    
+                    TextField {
+                        id: newMasterInput
+                        placeholderText: "Yeni Ana Parola (En az 8 karakter)"
+                        echoMode: changeMasterPwdDialog.showNewMasterPwd ? TextInput.Normal : TextInput.Password
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 44
+                        color: textMain
+                        background: Rectangle { color: "transparent"; radius: 4; border.color: newMasterInput.activeFocus ? accent : borderMain }
+                        leftPadding: 12
+                    }
+                    
+                    Button {
+                        Layout.preferredWidth: 44
+                        Layout.preferredHeight: 44
+                        icon.source: changeMasterPwdDialog.showNewMasterPwd ? "qrc:/icons/eye-off.svg" : "qrc:/icons/eye.svg"
+                        icon.color: hovered ? "#000000" : textMain
+                        icon.width: 18
+                        icon.height: 18
+                        display: AbstractButton.IconOnly
+                        background: Rectangle { 
+                            color: parent.hovered ? textMain : bgHover
+                            radius: 4
+                        }
+                        onClicked: changeMasterPwdDialog.showNewMasterPwd = !changeMasterPwdDialog.showNewMasterPwd
+                    }
+                }
+                
+                // Güç göstergesi
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 4
+                    radius: 2
+                    color: borderMain
+                    visible: newMasterInput.text.length > 0
+                    Rectangle {
+                        height: parent.height
+                        radius: 2
+                        Behavior on width { NumberAnimation { duration: 200 } }
+                        Behavior on color { ColorAnimation { duration: 200 } }
+                        property int score: newMasterInput.text.length > 0 ? vaultManager.checkPasswordStrength(newMasterInput.text) : 0
+                        width: parent.width * (score + 1) / 5
+                        color: score <= 1 ? danger : (score <= 2 ? "#fbbf24" : (score <= 3 ? "#34d399" : "#10b981"))
+                    }
+                }
+            }
+            
+            TextField {
+                id: confirmMasterInput
+                placeholderText: "Yeni Parola (Tekrar)"
+                echoMode: changeMasterPwdDialog.showNewMasterPwd ? TextInput.Normal : TextInput.Password
+                Layout.fillWidth: true
+                Layout.preferredHeight: 44
+                color: textMain
+                background: Rectangle { color: "transparent"; radius: 4; border.color: confirmMasterInput.activeFocus ? accent : borderMain }
+                leftPadding: 12
+            }
+            
+            Text {
+                id: changePwdError
+                color: danger
+                font.pixelSize: 12
+                visible: text !== ""
+                Layout.fillWidth: true
+            }
+            
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+                Item { Layout.fillWidth: true }
+                Button {
+                    text: "İptal"
+                    Layout.preferredHeight: 40
+                    Layout.preferredWidth: 100
+                    background: Rectangle { color: "transparent"; radius: 4; border.color: borderMain; border.width: 1 }
+                    contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 14; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: changeMasterPwdDialog.close()
+                }
+                Button {
+                    text: "Parolayı Güncelle"
+                    Layout.preferredHeight: 40
+                    Layout.preferredWidth: 150
+                    background: Rectangle { color: accent; radius: 4 }
+                    contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 14; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: {
+                        if (currentMasterInput.text === "") {
+                            changePwdError.text = "Lütfen mevcut ana parolanızı girin."
+                            return
+                        }
+                        if (newMasterInput.text.length < 8) {
+                            changePwdError.text = "Yeni parola en az 8 karakter olmalıdır."
+                            return
+                        }
+                        if (newMasterInput.text !== confirmMasterInput.text) {
+                            changePwdError.text = "Yeni parolalar birbiriyle uyuşmuyor!"
+                            return
+                        }
+                        
+                        if (vaultManager.changeMasterPassword(currentMasterInput.text, newMasterInput.text)) {
+                            changeMasterPwdDialog.close()
+                            showToast("Ana parola güncellendi ve tüm kasa yeniden şifrelendi.")
+                        } else {
+                            changePwdError.text = "Mevcut ana parola hatalı! Lütfen kontrol edin."
                         }
                     }
                 }

@@ -453,3 +453,83 @@ QVariantMap VaultManager::getSecurityReport() {
     report["reusedIds"] = reusedIds;
     return report;
 }
+
+bool VaultManager::changeMasterPassword(const QString& currentPassword, const QString& newPassword) {
+    if (newPassword.trimmed().isEmpty()) return false;
+
+    // 1. Mevcut ana parolayı doğrula
+    QSqlQuery query("SELECT value FROM metadata WHERE key='salt'");
+    if (!query.next()) return false;
+    QByteArray currentSalt = QByteArray::fromBase64(query.value(0).toByteArray());
+
+    query.exec("SELECT value FROM metadata WHERE key='canary'");
+    if (!query.next()) return false;
+    QByteArray currentEncryptedCanary = QByteArray::fromBase64(query.value(0).toByteArray());
+
+    QByteArray testKey = deriveKey(currentPassword, currentSalt);
+    QByteArray decryptedCanary = decryptData(currentEncryptedCanary, testKey);
+
+    if (decryptedCanary != CANARY_TEXT.toUtf8()) {
+        return false; // Mevcut parola hatalı!
+    }
+
+    // 2. Veritabanını değiştirmeden önce mevcut tüm şifreleri belleğe çöz
+    struct DecryptedItem {
+        int id;
+        QByteArray plaintext;
+    };
+    QList<DecryptedItem> decryptedList;
+
+    QSqlQuery fetchQuery("SELECT id, payload FROM vault");
+    while (fetchQuery.next()) {
+        DecryptedItem item;
+        item.id = fetchQuery.value(0).toInt();
+        QByteArray payload = fetchQuery.value(1).toByteArray();
+        item.plaintext = decryptData(payload, testKey);
+        decryptedList.append(item);
+    }
+
+    // 3. Yeni parola için taze bir Salt ve Anahtar türet
+    QByteArray newSalt(SALT_LEN, 0);
+    RAND_bytes(reinterpret_cast<unsigned char*>(newSalt.data()), SALT_LEN);
+    QByteArray newKey = deriveKey(newPassword, newSalt);
+    QByteArray newEncryptedCanary = encryptData(CANARY_TEXT.toUtf8(), newKey);
+
+    // 4. Atomik işlem (Transaction): Bir hata olursa hiçbir veri bozulmaz
+    if (!db.transaction()) {
+        return false;
+    }
+
+    // Metadata güncelle (yeni salt ve canary)
+    QSqlQuery updateMetaQuery;
+    updateMetaQuery.prepare("INSERT OR REPLACE INTO metadata (key, value) VALUES ('salt', :salt), ('canary', :canary)");
+    updateMetaQuery.bindValue(":salt", newSalt.toBase64());
+    updateMetaQuery.bindValue(":canary", newEncryptedCanary.toBase64());
+    if (!updateMetaQuery.exec()) {
+        db.rollback();
+        return false;
+    }
+
+    // Tüm kayıtları yeni anahtarla yeniden şifrele
+    for (const auto& item : decryptedList) {
+        QByteArray newPayload = encryptData(item.plaintext, newKey);
+        QSqlQuery updateVaultQuery;
+        updateVaultQuery.prepare("UPDATE vault SET payload = :p WHERE id = :id");
+        updateVaultQuery.bindValue(":p", newPayload);
+        updateVaultQuery.bindValue(":id", item.id);
+        if (!updateVaultQuery.exec()) {
+            db.rollback();
+            return false;
+        }
+    }
+
+    if (!db.commit()) {
+        db.rollback();
+        return false;
+    }
+
+    // 5. RAM'deki anahtarı güncelle
+    encryptionKey = newKey;
+    lastActivityTime = QDateTime::currentDateTime();
+    return true;
+}

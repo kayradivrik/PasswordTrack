@@ -42,6 +42,7 @@ public:
     Q_INVOKABLE int getAutoLockMinutes();
     Q_INVOKABLE void setAutoLockMinutes(int minutes);
     Q_INVOKABLE QVariantMap getSecurityReport();
+    Q_INVOKABLE bool changeMasterPassword(const QString& currentPassword, const QString& newPassword);
 
 signals:
     void pwnedStatus(int id, bool isPwned);
