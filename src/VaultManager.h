@@ -39,6 +39,9 @@ public:
     Q_INVOKABLE void setWallpaperOpacity(qreal opacity);
 
     Q_INVOKABLE bool exportToCSV(const QString& filePath);
+    Q_INVOKABLE bool exportVaultBackup(const QString& filePath);
+    Q_INVOKABLE QVariantMap inspectVaultBackup(const QString& filePath);
+    Q_INVOKABLE bool restoreVaultBackup(const QString& filePath, bool merge);
     Q_INVOKABLE int getAutoLockMinutes();
     Q_INVOKABLE void setAutoLockMinutes(int minutes);
     Q_INVOKABLE QVariantMap getSecurityReport();

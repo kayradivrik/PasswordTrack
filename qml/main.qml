@@ -32,6 +32,8 @@ ApplicationWindow {
     property int reusedCount: 0
     property int pwnedCount: 0
     property string healthFilter: "all"
+    property string pendingRestoreFile: ""
+    property var pendingRestoreInfo: null
     
     Image {
         anchors.fill: parent
@@ -80,6 +82,38 @@ ApplicationWindow {
         }
     }
 
+    FileDialog {
+        id: exportVaultDialog
+        title: "Şifreli Kasayı Dışa Aktar (.vault)"
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "vault"
+        nameFilters: ["PasswordTrack Vault (*.vault)"]
+        onAccepted: {
+            if (vaultManager.exportVaultBackup(selectedFile)) {
+                showToast("Şifreli .vault yedeği başarıyla oluşturuldu.")
+            } else {
+                showToast("Yedekleme işlemi başarısız oldu!")
+            }
+        }
+    }
+
+    FileDialog {
+        id: importVaultDialog
+        title: "Şifreli Kasayı İçe Aktar (.vault)"
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["PasswordTrack Vault (*.vault)", "Tüm Dosyalar (*)"]
+        onAccepted: {
+            var info = vaultManager.inspectVaultBackup(selectedFile)
+            if (!info.valid) {
+                showToast("Geçersiz veya bozuk .vault yedek dosyası!")
+                return
+            }
+            pendingRestoreFile = selectedFile
+            pendingRestoreInfo = info
+            restoreConfirmDialog.open()
+        }
+    }
+
     Connections {
         target: vaultManager
         function onPwnedStatus(id, isPwned) {
@@ -102,7 +136,10 @@ ApplicationWindow {
             addDialog.close()
             editDialog.close()
             changeMasterPwdDialog.close()
+            restoreConfirmDialog.close()
             exportCsvDialog.close()
+            exportVaultDialog.close()
+            importVaultDialog.close()
             vaultModel.clear()
             appState = 1
             showToast("Hareketsizlik nedeniyle kasa otomatik kilitlendi.")
@@ -180,6 +217,40 @@ ApplicationWindow {
                         loadData()
                     }
                 }
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 320
+                Layout.preferredHeight: 1
+                color: borderMain
+                Layout.topMargin: 4
+                Layout.bottomMargin: 4
+            }
+
+            Button {
+                text: "Yedekten Geri Yükle (.vault)"
+                Layout.preferredWidth: 320
+                Layout.preferredHeight: 40
+                contentItem: RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 8
+                    Image {
+                        source: "qrc:/icons/download.svg"
+                        sourceSize: Qt.size(15, 15)
+                    }
+                    Text {
+                        text: "Yedekten Geri Yükle (.vault)"
+                        color: textMain
+                        font.pixelSize: 13
+                        font.bold: true
+                    }
+                }
+                background: Rectangle {
+                    color: parent.down ? "#1f1f1f" : (parent.hovered ? bgHover : "transparent")
+                    border.color: borderMain
+                    radius: 4
+                }
+                onClicked: importVaultDialog.open()
             }
         }
     }
@@ -899,7 +970,79 @@ ApplicationWindow {
                     }
                 }
                 
-                // 3. Export CSV
+                // 3. Encrypted Vault Backup (.vault)
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 72
+                    color: "transparent"
+                    border.color: borderMain
+                    radius: 8
+                    
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 16
+                        spacing: 16
+                        
+                        Rectangle {
+                            width: 40; height: 40; radius: 8; color: bgSecondary
+                            Image { source: "qrc:/icons/shield.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                        }
+                        
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text { text: "Şifreli Yedek (.vault)"; color: textMain; font.pixelSize: 15; font.bold: true }
+                            Text { text: "Şifreleri çözmeden mevcut AES-256 anahtarıyla güvenli taşınabilir yedek oluşturur."; color: textMuted; font.pixelSize: 13 }
+                        }
+                        
+                        Button {
+                            text: "Yedek Al"
+                            Layout.preferredWidth: 100
+                            Layout.preferredHeight: 36
+                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
+                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                            onClicked: exportVaultDialog.open()
+                        }
+                    }
+                }
+
+                // 4. Restore Vault (.vault)
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 72
+                    color: "transparent"
+                    border.color: borderMain
+                    radius: 8
+                    
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 16
+                        spacing: 16
+                        
+                        Rectangle {
+                            width: 40; height: 40; radius: 8; color: bgSecondary
+                            Image { source: "qrc:/icons/key.svg"; sourceSize: Qt.size(20,20); anchors.centerIn: parent }
+                        }
+                        
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+                            Text { text: "Yedekten Geri Yükle / Taşı"; color: textMain; font.pixelSize: 15; font.bold: true }
+                            Text { text: "Windows veya Arch Linux'tan aldığınız .vault yedeğini geri yükleyin veya birleştirin."; color: textMuted; font.pixelSize: 13 }
+                        }
+                        
+                        Button {
+                            text: "Geri Yükle"
+                            Layout.preferredWidth: 100
+                            Layout.preferredHeight: 36
+                            background: Rectangle { color: parent.hovered ? bgHover : bgSecondary; radius: 6; border.color: borderMain }
+                            contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                            onClicked: importVaultDialog.open()
+                        }
+                    }
+                }
+                
+                // 5. Export CSV
                 Rectangle {
                     Layout.fillWidth: true
                     height: 72
@@ -1526,6 +1669,126 @@ ApplicationWindow {
                             showToast("Ana parola güncellendi ve tüm kasa yeniden şifrelendi.")
                         } else {
                             changePwdError.text = "Mevcut ana parola hatalı! Lütfen kontrol edin."
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Şifreli Yedek Geri Yükleme Onay Modalı
+    Dialog {
+        id: restoreConfirmDialog
+        anchors.centerIn: parent
+        width: 440
+        modal: true
+        dim: true
+        closePolicy: Dialog.CloseOnEscape | Dialog.CloseOnPressOutside
+        
+        background: Rectangle {
+            color: wallpaperPath !== "" ? "#e6121212" : "#121212"
+            border.color: borderMain
+            radius: 8
+        }
+        
+        contentItem: ColumnLayout {
+            spacing: 16
+            
+            RowLayout {
+                spacing: 10
+                Image {
+                    source: "qrc:/icons/shield.svg"
+                    sourceSize: Qt.size(22, 22)
+                }
+                Text {
+                    text: "Yedek Dosyası Doğrulandı"
+                    color: textMain
+                    font.pixelSize: 18
+                    font.bold: true
+                }
+            }
+            
+            Rectangle {
+                Layout.fillWidth: true
+                height: 64
+                radius: 6
+                color: bgSecondary
+                border.color: borderMain
+                
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 4
+                    Text {
+                        text: "Kayıt Sayısı: " + (pendingRestoreInfo ? pendingRestoreInfo.entryCount : 0) + " adet şifre"
+                        color: textMain
+                        font.pixelSize: 13
+                        font.bold: true
+                    }
+                    Text {
+                        text: "Oluşturulma: " + (pendingRestoreInfo ? pendingRestoreInfo.createdAt : "")
+                        color: textMuted
+                        font.pixelSize: 12
+                    }
+                }
+            }
+            
+            Text {
+                text: (pendingRestoreInfo && pendingRestoreInfo.canMerge && appState === 2) ?
+                      "Tam Geri Yükleme mevcut kasayı bu yedekle yeniler.\nBirleştirme ise mevcut şifrelerinizi koruyarak yeni şifreleri ekler." :
+                      "Tam Geri Yükleme yapıldığında mevcut veritabanı silinir ve bu yedek kurulur."
+                color: textMuted
+                font.pixelSize: 12
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
+                
+                Button {
+                    text: "İptal"
+                    Layout.preferredHeight: 38
+                    Layout.preferredWidth: 80
+                    background: Rectangle { color: "transparent"; radius: 4; border.color: borderMain; border.width: 1 }
+                    contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: restoreConfirmDialog.close()
+                }
+                
+                Item { Layout.fillWidth: true }
+                
+                Button {
+                    visible: pendingRestoreInfo && pendingRestoreInfo.canMerge && appState === 2
+                    text: "Birleştir (Ekle)"
+                    Layout.preferredHeight: 38
+                    Layout.preferredWidth: 120
+                    background: Rectangle { color: bgHover; radius: 4; border.color: borderMain }
+                    contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: {
+                        if (vaultManager.restoreVaultBackup(pendingRestoreFile, true)) {
+                            restoreConfirmDialog.close()
+                            loadData()
+                            showToast("Yedekteki şifreler mevcut kasaya başarıyla eklendi.")
+                        } else {
+                            showToast("Birleştirme işlemi başarısız oldu!")
+                        }
+                    }
+                }
+                
+                Button {
+                    text: "Tam Geri Yükle"
+                    Layout.preferredHeight: 38
+                    Layout.preferredWidth: 130
+                    background: Rectangle { color: accent; radius: 4 }
+                    contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    onClicked: {
+                        if (vaultManager.restoreVaultBackup(pendingRestoreFile, false)) {
+                            restoreConfirmDialog.close()
+                            appState = 1
+                            showToast("Kasa başarıyla geri yüklendi. Giriş yapabilirsiniz.")
+                        } else {
+                            showToast("Geri yükleme işlemi başarısız oldu!")
                         }
                     }
                 }

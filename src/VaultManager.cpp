@@ -17,6 +17,9 @@
 #include <QTextStream>
 #include <QStringConverter>
 #include <QEvent>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
@@ -532,4 +535,235 @@ bool VaultManager::changeMasterPassword(const QString& currentPassword, const QS
     encryptionKey = newKey;
     lastActivityTime = QDateTime::currentDateTime();
     return true;
+}
+
+bool VaultManager::exportVaultBackup(const QString& filePath) {
+    if (encryptionKey.isEmpty()) return false;
+
+    QString localPath = filePath;
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    } else if (localPath.startsWith("file://")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+
+    QSqlQuery metaQuery("SELECT key, value FROM metadata");
+    QString salt, canary;
+    while (metaQuery.next()) {
+        QString k = metaQuery.value(0).toString();
+        if (k == "salt") salt = metaQuery.value(1).toString();
+        else if (k == "canary") canary = metaQuery.value(1).toString();
+    }
+
+    if (salt.isEmpty() || canary.isEmpty()) return false;
+
+    QJsonArray entriesArray;
+    QSqlQuery vaultQuery("SELECT service, username, payload FROM vault ORDER BY id ASC");
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    hash.addData(salt.toUtf8());
+    hash.addData(canary.toUtf8());
+
+    while (vaultQuery.next()) {
+        QJsonObject obj;
+        QString service = vaultQuery.value(0).toString();
+        QString username = vaultQuery.value(1).toString();
+        QByteArray payload = vaultQuery.value(2).toByteArray();
+
+        obj["service"] = service;
+        obj["username"] = username;
+        obj["payload"] = QString::fromLatin1(payload.toBase64());
+
+        hash.addData(service.toUtf8());
+        hash.addData(username.toUtf8());
+        hash.addData(payload);
+
+        entriesArray.append(obj);
+    }
+
+    QJsonObject root;
+    root["format"] = "PasswordTrack.VaultBackup";
+    root["version"] = 1;
+    root["created_at"] = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+    root["salt"] = salt;
+    root["canary"] = canary;
+    root["entries"] = entriesArray;
+    root["checksum"] = QString::fromLatin1(hash.result().toHex());
+
+    QFile file(localPath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        return false;
+    }
+
+    QJsonDocument doc(root);
+    file.write(doc.toJson(QJsonDocument::Indented));
+    file.close();
+    return true;
+}
+
+QVariantMap VaultManager::inspectVaultBackup(const QString& filePath) {
+    QVariantMap res;
+    res["valid"] = false;
+    res["entryCount"] = 0;
+    res["createdAt"] = "";
+    res["canMerge"] = false;
+
+    QString localPath = filePath;
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    } else if (localPath.startsWith("file://")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+
+    QFile file(localPath);
+    if (!file.open(QIODevice::ReadOnly)) return res;
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    file.close();
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return res;
+
+    QJsonObject root = doc.object();
+    if (root["format"].toString() != "PasswordTrack.VaultBackup") return res;
+    if (!root.contains("salt") || !root.contains("canary") || !root.contains("entries")) return res;
+
+    QString salt = root["salt"].toString();
+    QString canary = root["canary"].toString();
+    QJsonArray entries = root["entries"].toArray();
+    QString expectedChecksum = root["checksum"].toString();
+
+    // Checksum kontrolü
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    hash.addData(salt.toUtf8());
+    hash.addData(canary.toUtf8());
+    for (const auto& item : entries) {
+        QJsonObject obj = item.toObject();
+        QString service = obj["service"].toString();
+        QString username = obj["username"].toString();
+        QByteArray payload = QByteArray::fromBase64(obj["payload"].toString().toLatin1());
+        hash.addData(service.toUtf8());
+        hash.addData(username.toUtf8());
+        hash.addData(payload);
+    }
+
+    if (!expectedChecksum.isEmpty() && hash.result().toHex() != expectedChecksum.toLatin1()) {
+        res["corrupted"] = true;
+        return res;
+    }
+
+    // Mevcut kasanın salt ve canary'si ile karşılaştır (Birleştirme yapılabilir mi?)
+    QSqlQuery query("SELECT value FROM metadata WHERE key='salt'");
+    QString currentSalt;
+    if (query.next()) currentSalt = query.value(0).toString();
+    query.exec("SELECT value FROM metadata WHERE key='canary'");
+    QString currentCanary;
+    if (query.next()) currentCanary = query.value(0).toString();
+
+    bool sameMasterKey = (!currentSalt.isEmpty() && currentSalt == salt && currentCanary == canary);
+
+    res["valid"] = true;
+    res["entryCount"] = entries.size();
+    res["createdAt"] = root["created_at"].toString();
+    res["canMerge"] = sameMasterKey && isUnlocked();
+    res["filePath"] = localPath;
+    return res;
+}
+
+bool VaultManager::restoreVaultBackup(const QString& filePath, bool merge) {
+    QVariantMap info = inspectVaultBackup(filePath);
+    if (!info["valid"].toBool()) return false;
+
+    QString localPath = filePath;
+    if (localPath.startsWith("file:///")) {
+        localPath = QUrl(localPath).toLocalFile();
+    } else if (localPath.startsWith("file://")) {
+        localPath = QUrl(localPath).toLocalFile();
+    }
+
+    QFile file(localPath);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    QJsonObject root = doc.object();
+    QString salt = root["salt"].toString();
+    QString canary = root["canary"].toString();
+    QJsonArray entries = root["entries"].toArray();
+
+    if (!db.transaction()) return false;
+
+    if (!merge) {
+        // Tam Geri Yükleme (Full Restore)
+        QSqlQuery delMeta("DELETE FROM metadata");
+        delMeta.exec();
+        QSqlQuery insertMeta;
+        insertMeta.prepare("INSERT INTO metadata (key, value) VALUES ('salt', :s), ('canary', :c)");
+        insertMeta.bindValue(":s", salt);
+        insertMeta.bindValue(":c", canary);
+        if (!insertMeta.exec()) {
+            db.rollback();
+            return false;
+        }
+
+        QSqlQuery delVault("DELETE FROM vault");
+        delVault.exec();
+
+        for (const auto& item : entries) {
+            QJsonObject obj = item.toObject();
+            QSqlQuery insertVault;
+            insertVault.prepare("INSERT INTO vault (service, username, payload) VALUES (:s, :u, :p)");
+            insertVault.bindValue(":s", obj["service"].toString());
+            insertVault.bindValue(":u", obj["username"].toString());
+            insertVault.bindValue(":p", QByteArray::fromBase64(obj["payload"].toString().toLatin1()));
+            if (!insertVault.exec()) {
+                db.rollback();
+                return false;
+            }
+        }
+
+        if (!db.commit()) {
+            db.rollback();
+            return false;
+        }
+
+        // Güvenlik için kasayı kilitliyoruz (Ana parola ile tekrar giriş yapılması için)
+        lockVault();
+        return true;
+    } else {
+        // Birleştir (Merge)
+        for (const auto& item : entries) {
+            QJsonObject obj = item.toObject();
+            QString service = obj["service"].toString();
+            QString username = obj["username"].toString();
+            QByteArray payload = QByteArray::fromBase64(obj["payload"].toString().toLatin1());
+
+            QSqlQuery checkQuery;
+            checkQuery.prepare("SELECT id FROM vault WHERE service = :s AND username = :u");
+            checkQuery.bindValue(":s", service);
+            checkQuery.bindValue(":u", username);
+            checkQuery.exec();
+
+            if (checkQuery.next()) {
+                int existingId = checkQuery.value(0).toInt();
+                QSqlQuery updateQuery;
+                updateQuery.prepare("UPDATE vault SET payload = :p WHERE id = :id");
+                updateQuery.bindValue(":p", payload);
+                updateQuery.bindValue(":id", existingId);
+                updateQuery.exec();
+            } else {
+                QSqlQuery insertVault;
+                insertVault.prepare("INSERT INTO vault (service, username, payload) VALUES (:s, :u, :p)");
+                insertVault.bindValue(":s", service);
+                insertVault.bindValue(":u", username);
+                insertVault.bindValue(":p", payload);
+                insertVault.exec();
+            }
+        }
+
+        if (!db.commit()) {
+            db.rollback();
+            return false;
+        }
+
+        return true;
+    }
 }
