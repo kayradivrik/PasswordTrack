@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>icons/logo.png</file>
+        <file>icons/logo_solid.png</file>
         <file>icons/lock.svg</file>
         <file>icons/shield.svg</file>
         <file>icons/copy.svg</file>

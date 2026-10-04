@@ -11,23 +11,28 @@
 #endif
 #endif
 
+#include <QFont>
 #include "VaultManager.h"
 #include "PasswordGen.h"
 
 int main(int argc, char *argv[]) {
     qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
     QGuiApplication app(argc, argv);
+    QFont defaultFont("Segoe UI", 10);
+    defaultFont.setStyleHint(QFont::SansSerif);
+    app.setFont(defaultFont);
+
     app.setOrganizationName("KayraPortfolio");
     app.setApplicationName("VoidPass");
     app.setApplicationDisplayName("VoidPass");
-    app.setWindowIcon(QIcon(":/icons/shield.svg"));
+    app.setWindowIcon(QIcon(":/icons/logo.png"));
 
     VaultManager vaultManager;
     PasswordGen passwordGen;
 
     QQmlApplicationEngine engine;
     
-    // QML'e C++ sınıflarımızı React Component'i / hook'u gibi veriyoruz
+    // QML arayüzüne backend sınıflarımı (VaultManager, PasswordGen) enjekte ediyorum.
     engine.rootContext()->setContextProperty("vaultManager", &vaultManager);
     engine.rootContext()->setContextProperty("passwordGen", &passwordGen);
 
@@ -40,11 +45,11 @@ int main(int argc, char *argv[]) {
     engine.load(url);
 
 #ifdef Q_OS_WIN
-    // Anti-Screenshot (Ekran Görüntüsü Koruyucu) Özelliği - Yalnızca Windows'ta
+    // Anti-Screenshot (Ekran Görüntüsü Koruyucu) özelliğini aktifleştiriyorum. Sadece Windows'ta çalışıyor.
     if (!engine.rootObjects().isEmpty()) {
         if (QWindow *window = qobject_cast<QWindow *>(engine.rootObjects().first())) {
             HWND hwnd = (HWND)window->winId();
-            // WDA_EXCLUDEFROMCAPTURE ile pencerenin OBS, Snipping Tool veya virüsler tarafından kaydedilmesini önleriz (Pencere siyah gözükür).
+            // Ekran kaydedicilerin (OBS, Snipping Tool, zararlı yazılımlar) pencereyi kaydetmesini engelliyorum.
             SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
         }
     }

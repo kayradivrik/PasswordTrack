@@ -1,64 +1,41 @@
-# VoidPass 🛡️
+# VoidPass - Modern & Secure Local Password Manager
 
-Modern, minimalist ve **Zero-Knowledge (Sıfır Bilgi)** mimarisine sahip C++ / Qt6 masaüstü parola yöneticisi.
+VoidPass, modern bir arayüz ile güçlü şifreleme algoritmalarını bir araya getiren, tamamen yerel olarak çalışan (offline-first) bir parola yöneticisidir. Tüm şifreleriniz C++ arka planında **AES-256-GCM** kullanılarak şifrelenir ve kullanıcı odaklı şık bir QML arayüzü ile yönetilir.
 
----
+## 🚀 Özellikler
 
-## ✨ Özellikler
+### Güvenlik & Şifreleme
+- **AES-256-GCM Şifreleme:** Kasanızdaki tüm parolalar kırılması imkansız AES-256 algoritmasıyla şifrelenir.
+- **Ekran Alıntısı Koruması (Anti-Screenshot):** Yalnızca Windows'a özel Windows API (WDA_EXCLUDEFROMCAPTURE) entegrasyonu sayesinde, OBS, Snipping Tool veya zararlı yazılımların arayüzün kaydını alması engellenir. Ekran kaydında uygulama simsiyah görünür.
+- **Otomatik Kilit (Auto-Lock):** Kasa açıkken belirli bir süre boyunca hiçbir etkileşimde bulunulmazsa, güvenlik için uygulama otomatik olarak kilitlenir.
+- **Pano Güvenliği:** Panoya (Clipboard) kopyaladığınız parolalar, başka uygulamaların veya kişilerin görmemesi için 30 saniye sonra sistem tarafından otomatik olarak silinir.
+- **Atomik İşlemler (Transactions):** Ana parola değiştirilirken veritabanı bozulmalarına karşı koruma mekanizması.
 
-* **Zero-Knowledge Mimarisi:** Tüm şifreleme ve çözme işlemleri tamamen istemci tarafında (yerel cihazınızda) gerçekleşir. Ana parolanız asla kaydedilmez.
-* **Askeri Düzeyde Şifreleme:** AES-256-GCM ve PBKDF2-HMAC-SHA256 (100.000 iterasyon) ile koruma.
-* **Şifreli Yedekleme ve Taşıma (.vault):** Şifreleri çözmeden, mevcut AES-256 anahtarıyla şifrelenmiş taşınabilir tek bir `.vault` dosyası oluşturma ve Windows ile Arch Linux arasında güvenle taşıma / geri yükleme.
-* **Ana Parola Değiştirme (Atomic Re-encryption):** Eski parolayı doğrulayıp yeni bir salt ve anahtar türeterek tüm kasayı atomik SQLite transaction ile tek seferde yeniden şifreleme.
-* **Parola Sağlığı & Güvenlik Göstergesi:**
-  * Kasa genel güvenlik skoru (%0 - %100).
-  * Zayıf, tekrar eden (reused) ve veri sızıntılarına (HIBP) karışmış parolaları anında tespit etme, tek ve kompakt rozette çoklu uyarı gösterme.
-* **Pano Güvenliği (Clipboard Clearance):** Kopyalanan parolalar panoda açık kalmaz; 30 saniye sonra otomatik olarak hafızadan temizlenir.
-* **Şifre Düzenleme (Edit):** Mevcut kayıtları silmeden doğrudan güncelleme imkanı.
-* **Otomatik Kilit (Auto-Lock):** Belirlenen süre boyunca (1 dk, 5 dk, 10 dk) fare ve klavye hareketsizliği algılandığında kasanın RAM'deki şifreleme anahtarlarını anında sıfırlayarak kilit ekranına dönmesi.
-* **Anti-Screenshot Koruması (Windows):** OBS, Snipping Tool veya ekran yakalama yazılımlarından pencere içeriğini siyah ekran olarak koruma (`WDA_EXCLUDEFROMCAPTURE`).
-* **Veri Dışa Aktarma (CSV):** Şifreleri Excel ile tam uyumlu UTF-8 BOM CSV formatında dışa aktarma.
-* **Duyarlı (Responsive) Arayüz & ScrollView:** 1024x768 gibi küçük ekranlarda dahi akıcı kaydırma ve tam görünürlük.
-* **Özelleştirilebilir Duvar Kağıdı:** Ayarlanabilir opaklık ve akıllı Vignette (karartma) filtresi ile her zaman okunabilir tasarım.
+### Veri Yönetimi & Kasa Sağlığı
+- **Güvenlik Rozetleri (Health Score):** Eklediğiniz şifreler gerçek zamanlı olarak analiz edilir. 
+  - **Zayıf Şifre:** Kısa veya tahmin edilebilir parolalar.
+  - **Tekrar Eden Şifre:** Aynı şifrenin farklı platformlarda kullanımı.
+  - Sızdırılmış şifre risklerine karşı rozet bildirimleri ve genel "Kasa Sağlığı" skor tablosu (100 üzerinden ağırlıklı cezalandırma sistemi).
+- **Yedekleme ve Geri Yükleme (.vault):** Kasanızı AES-256 ile şifreli `.vault` uzantılı kendi formatımda dışa aktarabilir ve sonrasında mevcut kasanıza "merge (birleştirme)" mantığıyla geri yükleyebilirsiniz.
+- **CSV Desteği:** İhtiyaç durumunda verilerinizi Excel uyumlu (UTF-8 BOM) CSV olarak dışa aktarabilirsiniz.
+- **Gelişmiş Rastgele Parola Üretici:** Yeni şifre eklerken uzunluğunu (8-64 karakter) esnekçe ayarlayıp güvenli parolalar türetebilirsiniz.
 
----
+### Arayüz (UI/UX)
+- **Modern QML Mimarisi:** Native hissettiren, akıcı 60FPS arayüz. Glassmorphism (buzlu cam) efektleriyle desteklenen şık bileşenler.
+- **Pencereye Duyarlı Esnek Düzen (Responsive Layout):** Matematiksel formüllerle yazılmış dinamik tablo düzeni. Pencere boyutu değiştiğinde tablolar ve menüler esner, daraltılır ve asla taşma veya bozulma (Jitter) yaşanmaz.
+- **Akıllı Marka Tanıma (Brand Detection):** Eklediğiniz servisin adından (örn. "gmail", "netflix") otomatik olarak ikonları algılayan ve gösteren 50'den fazla yerleşik marka kataloğu.
+- **Kişiselleştirme:** Arayüzün arka planına özel duvar kağıdı yükleyebilir ve okunabilirliği koruyan dinamik karartma (Vignette) filtresini kullanabilirsiniz. Ölçek (UI Scale) ve tam çift dil (Türkçe/İngilizce) desteği.
+- **Özel Animasyonlar:** Butonlara özel geri sekme animasyonları (OutBack), renk geçişleri ve özel tasarım kaydırma çubukları (Custom Scrollbar).
 
-## 🐧 Arch Linux Kurulum ve Derleme Rehberi
+## 🛠️ Teknik Detaylar (Tech Stack)
+- **Dil:** C++17, QML, JavaScript
+- **Framework:** Qt 6.x
+- **Veritabanı/Depolama:** Yerel JSON / Binary Serializer (AES Şifreli)
+- **Mimari:** Frontend-Backend Ayrımı (C++ backend özellikleri QML'e ContextProperty olarak hook edilir). 
 
-Uygulama tam platformlar arası (cross-platform) olarak geliştirilmiştir. Arch Linux üzerinde derlemek için:
+## ⚙️ Kurulum ve Derleme
+Bu projeyi derlemek için sisteminizde Qt 6 (tercihen 6.6+) kurulu olmalıdır.
+CMake ile konfigüre edip `main.cpp` üzerinden çalıştırabilirsiniz.
 
-### 1. Gerekli Bağımlılıkları Yükleyin
-```bash
-sudo pacman -S base-devel cmake git qt6-base qt6-declarative qt6-svg openssl sqlite
-```
-
-### 2. Depoyu Klonlayın ve Derleyin
-```bash
-git clone https://github.com/kayradivrik/PasswordTrack.git
-cd PasswordTrack
-cmake -B build -S .
-cmake --build build -j$(nproc)
-```
-
-### 3. Çalıştırın
-```bash
-./build/VoidPass
-```
-
----
-
-## 🪟 Windows (MSYS2 / MinGW) ile Derleme
-
-```powershell
-cmake -B build -S .
-cmake --build build --config Release
-.\build\VoidPass.exe
-```
-
----
-
-## 🔒 Güvenlik Mimarisi
-
-* **Şifreleme:** AES-256-GCM (12-byte IV, 16-byte Authentication Tag)
-* **Anahtar Türetme (KDF):** PBKDF2-HMAC-SHA256 (100.000 döngü, 16-byte Salt)
-* **Sızıntı Taraması:** Have I Been Pwned API v3 (k-Anonymity modeli; şifrenin yalnızca SHA-1 hash'inin ilk 5 karakteri sorgulanır, tam hash veya şifre asla ağa iletilmez).
+## 👨‍💻 Geliştirici
+Bu proje, modern bir C++ ve Qt/QML altyapısının pratikte ne kadar estetik ve aynı zamanda ne kadar yüksek güvenlik standartlarıyla harmanlanabileceğini göstermek amacıyla bir portföy projesi olarak geliştirilmiştir.

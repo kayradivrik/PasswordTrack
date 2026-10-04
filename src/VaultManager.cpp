@@ -35,7 +35,7 @@ VaultManager::VaultManager(QObject* parent) : QObject(parent) {
     netManager = new QNetworkAccessManager(this);
     initDatabase();
 
-    // 1. Pano Güvenliği (30 Saniye Sonra Otomatik Temizleme)
+    // Pano güvenliği için 30 saniye sonra clipboard'u otomatik temizleyen timer'ı kurdum.
     clipboardClearTimer = new QTimer(this);
     clipboardClearTimer->setSingleShot(true);
     connect(clipboardClearTimer, &QTimer::timeout, this, [this]() {
@@ -48,7 +48,7 @@ VaultManager::VaultManager(QObject* parent) : QObject(parent) {
         }
     });
 
-    // 2. Otomatik Kilit (Boşta Kalma Takibi)
+    // Güvenlik için kullanıcının işlem yapmadığı süreyi takip eden otomatik kilit mekanizmasını başlattım.
     lastActivityTime = QDateTime::currentDateTime();
     if (QGuiApplication::instance()) {
         QGuiApplication::instance()->installEventFilter(this);
@@ -383,7 +383,7 @@ bool VaultManager::exportToCSV(const QString& filePath) {
     }
 
     QTextStream out(&file);
-    // Excel ile tam uyumlu UTF-8 BOM ekliyoruz
+    // Excel vb. araçlarda Türkçe karakter sorunu olmaması için dosyaya UTF-8 BOM ekliyorum.
     out.setEncoding(QStringConverter::Utf8);
     out.setGenerateByteOrderMark(true);
     out << "\"Servis\",\"Kullanıcı Adı\",\"Parola\"\n";
@@ -438,7 +438,7 @@ QVariantMap VaultManager::getSecurityReport() {
         return report;
     }
     
-    // Şifre tekrarını (reuse) tespit et
+    // Şifrelerin başka platformlarda tekrar kullanılıp kullanılmadığını analiz ediyorum.
     QMap<QString, int> pwdFrequency;
     for (const QVariant& v : entries) {
         QVariantMap entry = v.toMap();
@@ -466,7 +466,7 @@ QVariantMap VaultManager::getSecurityReport() {
         }
     }
     
-    // Sağlık Skoru: 100 üzerinden ağırlıklı ceza puanları
+    // Kasa sağlığını 100 üzerinden ağırlıklı ceza puanı algoritmasıyla hesaplıyorum.
     double weakRatio = (double)weakCount / total;
     double reusedRatio = (double)reusedCount / total;
     
@@ -523,7 +523,7 @@ bool VaultManager::changeMasterPassword(const QString& currentPassword, const QS
     QByteArray newKey = deriveKey(newPassword, newSalt);
     QByteArray newEncryptedCanary = encryptData(CANARY_TEXT.toUtf8(), newKey);
 
-    // 4. Atomik işlem (Transaction): Bir hata olursa hiçbir veri bozulmaz
+    // İşlemi atomik (Transaction) yapıyorum, bir hata olursa eski veriler bozulmasın.
     if (!db.transaction()) {
         return false;
     }
@@ -751,7 +751,7 @@ bool VaultManager::restoreVaultBackup(const QString& filePath, bool merge) {
             return false;
         }
 
-        // Güvenlik için kasayı kilitliyoruz (Ana parola ile tekrar giriş yapılması için)
+        // Güvenlik ihlali olmaması adına birleştirme sonrası kasayı kilitliyorum.
         lockVault();
         return true;
     } else {

@@ -12,6 +12,8 @@ ApplicationWindow {
     minimumHeight: 480
     title: "VoidPass"
     color: bgMain
+    font.family: "Segoe UI"
+    font.pixelSize: 13
 
     readonly property color bgMain: "#000000"
     readonly property color bgSecondary: wallpaperPath !== "" ? "#d90a0a0a" : "#0a0a0a"
@@ -54,7 +56,7 @@ ApplicationWindow {
             login_unlock_btn: "Kasanın Kilidini Aç",
             
             search_placeholder: "Kasalarda ara... (Servis veya e-posta)",
-            add_password_btn: "+ Yeni Şifre Ekle",
+            add_password_btn: "Yeni Şifre Ekle",
             
             health_score: "Güvenlik Puanı",
             health_all: "Tümü",
@@ -172,7 +174,7 @@ ApplicationWindow {
             login_unlock_btn: "Unlock Vault",
             
             search_placeholder: "Search vault... (Service or email)",
-            add_password_btn: "+ Add New Password",
+            add_password_btn: "Add Password",
             
             health_score: "Security Score",
             health_all: "All",
@@ -273,11 +275,13 @@ ApplicationWindow {
         return (lang && lang[key] !== undefined) ? lang[key] : key
     }
 
-    // Dinamik ve Sabit Tablo Kolon Genişlikleri (Tam ekranda eşit yayılma ve sıfır kayma)
-    readonly property int tableAvailableWidth: Math.max(540, (passwordList ? passwordList.width : 900) - 32 - 176)
-    readonly property int colServiceWidth: Math.max(180, Math.floor(tableAvailableWidth * 0.28))
-    readonly property int colUsernameWidth: Math.max(220, Math.floor(tableAvailableWidth * 0.38))
-    readonly property int colPasswordWidth: Math.max(160, tableAvailableWidth - colServiceWidth - colUsernameWidth)
+    // Pencere genişliğine duyarlı, dinamik tablo kolon genişliği algoritmam.
+    readonly property real currentScaledWidth: width / uiScale
+    readonly property int dashboardWidth: currentScaledWidth - Math.max(40, currentScaledWidth - 1100)
+    readonly property int tableAvailableWidth: Math.max(10, dashboardWidth - 32 - 176)
+    readonly property int colServiceWidth: Math.max(100, Math.floor(tableAvailableWidth * 0.28))
+    readonly property int colUsernameWidth: Math.max(120, Math.floor(tableAvailableWidth * 0.38))
+    readonly property int colPasswordWidth: Math.max(100, tableAvailableWidth - colServiceWidth - colUsernameWidth)
     readonly property int colActionsWidth: 176
     
     // Parola Sağlığı Paneli Durumu
@@ -290,7 +294,7 @@ ApplicationWindow {
     property string pendingRestoreFile: ""
     property var pendingRestoreInfo: null
     
-    // 55 Popüler Marka / Servis Kataloğu
+    // Otomatik ikon tanımlaması için oluşturduğum yerleşik marka sözlüğü.
     readonly property var brandCatalog: [
         { id: "google", name: "Google", keys: ["google", "gmail", "youtube", "android", "chrome"] },
         { id: "outlook", name: "Outlook", keys: ["outlook", "hotmail", "live.com", "msn"] },
@@ -402,7 +406,7 @@ ApplicationWindow {
         z: -2
     }
     
-    // Metinlerin (özellikle başlıkların) her zaman okunabilmesi için estetik karartma (Vignette Filtresi)
+    // Arka plan resmi üzerindeki okunabilirliği artırmak için Vignette efekti (Karartma) ekliyorum.
     Rectangle {
         anchors.fill: parent
         visible: wallpaperPath !== "" // Sadece duvar kağıdı varken çalışır
@@ -522,9 +526,12 @@ ApplicationWindow {
             spacing: 24
             
             Image {
-                source: "qrc:/icons/shield.svg"
+                source: "qrc:/icons/logo.png"
                 Layout.alignment: Qt.AlignHCenter
-                sourceSize: Qt.size(48, 48)
+                Layout.preferredWidth: 64
+                Layout.preferredHeight: 64
+                fillMode: Image.PreserveAspectFit
+                mipmap: true
             }
             
             Text {
@@ -563,6 +570,7 @@ ApplicationWindow {
             
             Button {
                 text: "Vault'u Kur"
+                padding: 0
                 Layout.preferredWidth: 320
                 Layout.preferredHeight: 48
                 contentItem: Text {
@@ -595,6 +603,7 @@ ApplicationWindow {
 
             Button {
                 text: "Yedekten Geri Yükle (.vault)"
+                padding: 0
                 Layout.preferredWidth: 320
                 Layout.preferredHeight: 40
                 contentItem: RowLayout {
@@ -631,9 +640,12 @@ ApplicationWindow {
             spacing: 24
             
             Image {
-                source: "qrc:/icons/lock.svg"
+                source: "qrc:/icons/logo.png"
                 Layout.alignment: Qt.AlignHCenter
-                sourceSize: Qt.size(48, 48)
+                Layout.preferredWidth: 64
+                Layout.preferredHeight: 64
+                fillMode: Image.PreserveAspectFit
+                mipmap: true
             }
             
             Text {
@@ -674,6 +686,7 @@ ApplicationWindow {
             Button {
                 id: unlockBtn
                 text: "Kilidi Aç"
+                padding: 0
                 Layout.preferredWidth: 320
                 Layout.preferredHeight: 48
                 contentItem: Text {
@@ -709,8 +722,8 @@ ApplicationWindow {
         
         ColumnLayout {
             anchors.fill: parent
-            anchors.leftMargin: Math.max(20, Math.min(36, parent.width * 0.035))
-            anchors.rightMargin: Math.max(20, Math.min(36, parent.width * 0.035))
+            anchors.leftMargin: Math.max(20, (parent.width - 1100) / 2)
+            anchors.rightMargin: Math.max(20, (parent.width - 1100) / 2)
             anchors.topMargin: Math.max(16, Math.min(28, parent.height * 0.035))
             anchors.bottomMargin: Math.max(16, Math.min(28, parent.height * 0.035))
             spacing: parent.height < 650 ? 16 : 24
@@ -721,8 +734,12 @@ ApplicationWindow {
                 spacing: 16
                 
                 Image {
-                    source: "qrc:/icons/shield.svg"
-                    sourceSize: Qt.size(28, 28)
+                    source: "qrc:/icons/logo.png"
+                    Layout.preferredWidth: 28
+                    Layout.preferredHeight: 28
+                    sourceSize: Qt.size(56, 56)
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
                     Layout.alignment: Qt.AlignVCenter
                 }
                 
@@ -740,26 +757,39 @@ ApplicationWindow {
                 TextField {
                     id: searchInput
                     placeholderText: t("search_placeholder")
+                    Layout.fillWidth: true
                     Layout.preferredWidth: 260
+                    Layout.maximumWidth: 260
+                    Layout.minimumWidth: 120
                     Layout.preferredHeight: 40
                     Layout.alignment: Qt.AlignVCenter
                     verticalAlignment: TextInput.AlignVCenter
                     color: textMain
+                    font.pixelSize: 13
+                    topPadding: 0
+                    bottomPadding: 0
+                    leftPadding: 16
+                    rightPadding: 16
                     background: Rectangle {
                         color: "transparent"
                         radius: 4
                         border.color: searchInput.activeFocus ? accent : borderMain
                     }
-                    leftPadding: 16
                     onTextChanged: loadData()
                 }
                 
                 ComboBox {
                     id: sortCombo
+                    Layout.fillWidth: true
                     Layout.preferredWidth: 160
+                    Layout.maximumWidth: 160
+                    Layout.minimumWidth: 100
                     Layout.preferredHeight: 40
                     Layout.alignment: Qt.AlignVCenter
                     model: [t("sort_newest"), t("sort_oldest"), t("sort_az"), t("sort_za")]
+                    padding: 0
+                    topPadding: 0
+                    bottomPadding: 0
                     
                     background: Rectangle {
                         color: "transparent"
@@ -769,17 +799,21 @@ ApplicationWindow {
                     contentItem: Text {
                         text: sortCombo.displayText
                         color: textMain
-                        font.pixelSize: 14
+                        font.pixelSize: 13
                         verticalAlignment: Text.AlignVCenter
                         leftPadding: 16
+                        rightPadding: 24
                     }
                     
                     delegate: ItemDelegate {
                         width: sortCombo.width
+                        padding: 0
                         contentItem: Text {
                             text: modelData
                             color: textMain
-                            font.pixelSize: 14
+                            font.pixelSize: 13
+                            leftPadding: 16
+                            verticalAlignment: Text.AlignVCenter
                         }
                         background: Rectangle {
                             color: hovered ? bgHover : bgSecondary
@@ -810,8 +844,14 @@ ApplicationWindow {
                 Button {
                     text: t("add_password_btn")
                     Layout.preferredHeight: 40
+                    Layout.fillWidth: true
                     Layout.preferredWidth: 160
+                    Layout.maximumWidth: 160
+                    Layout.minimumWidth: 120
                     Layout.alignment: Qt.AlignVCenter
+                    padding: 0
+                    topPadding: 0
+                    bottomPadding: 0
                     contentItem: Item {
                         anchors.fill: parent
                         RowLayout {
@@ -820,12 +860,15 @@ ApplicationWindow {
                             Image {
                                 source: "qrc:/icons/plus.svg"
                                 sourceSize: Qt.size(16, 16)
+                                Layout.alignment: Qt.AlignVCenter
                             }
                             Text {
                                 text: t("add_password_btn")
                                 color: bgMain
                                 font.bold: true
                                 font.pixelSize: 13
+                                verticalAlignment: Text.AlignVCenter
+                                Layout.alignment: Qt.AlignVCenter
                             }
                         }
                     }
@@ -834,12 +877,20 @@ ApplicationWindow {
                         radius: 4
                     }
                     onClicked: addDialog.open()
+                    
+                    scale: pressed ? 0.95 : (hovered ? 1.02 : 1.0)
+                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
                 }
             }
             
             // Parola Sağlığı & Filtre Çubuğu (Minimalist Bar)
             Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredHeight: 38
+                Layout.minimumHeight: 38
+                Layout.maximumHeight: 38
+                Layout.fillHeight: false
+                implicitHeight: 38
                 height: 38
                 color: wallpaperPath !== "" ? "#d90a0a0a" : "#0d0d0d"
                 border.color: borderMain
@@ -860,13 +911,16 @@ ApplicationWindow {
                             source: "qrc:/icons/shield.svg"
                             sourceSize: Qt.size(13, 13)
                             opacity: 0.8
+                            Layout.alignment: Qt.AlignVCenter
                         }
                         
                         Text { 
                             text: (appLang === "en" ? "Vault Health: %" : "Kasa Sağlığı: %") + healthScore
                             color: textMain
                             font.pixelSize: 12
-                            font.bold: true 
+                            font.bold: true
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignVCenter
                         }
                         
                         Rectangle {
@@ -874,6 +928,7 @@ ApplicationWindow {
                             height: 3
                             radius: 1.5
                             color: "#222222"
+                            Layout.alignment: Qt.AlignVCenter
                             Rectangle {
                                 width: parent.width * Math.min(1.0, Math.max(0.0, healthScore / 100.0))
                                 height: parent.height
@@ -923,6 +978,7 @@ ApplicationWindow {
                                     color: isSelected ? textMain : (modelData.count > 0 && modelData.id !== "all" ? "#cccccc" : textMuted)
                                     font.pixelSize: 11
                                     font.bold: isSelected
+                                    verticalAlignment: Text.AlignVCenter
                                 }
                                 
                                 MouseArea {
@@ -947,9 +1003,14 @@ ApplicationWindow {
                 }
             }
             
-            // Table Header
+            // Table Header Separator
             Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredHeight: 1
+                Layout.minimumHeight: 1
+                Layout.maximumHeight: 1
+                Layout.fillHeight: false
+                implicitHeight: 1
                 height: 1
                 color: borderMain
             }
@@ -959,12 +1020,14 @@ ApplicationWindow {
                 Layout.leftMargin: 16
                 Layout.rightMargin: 16
                 Layout.preferredHeight: 28
+                Layout.minimumHeight: 28
+                Layout.maximumHeight: 28
+                Layout.fillHeight: false
+                implicitHeight: 28
                 spacing: 0
                 
                 Item {
                     Layout.preferredWidth: colServiceWidth
-                    Layout.minimumWidth: colServiceWidth
-                    Layout.maximumWidth: colServiceWidth
                     Layout.fillHeight: true
                     Text { 
                         anchors.left: parent.left
@@ -974,13 +1037,12 @@ ApplicationWindow {
                         font.bold: true
                         font.pixelSize: 11
                         font.letterSpacing: 1
+                        verticalAlignment: Text.AlignVCenter
                     }
                 }
                 
                 Item {
                     Layout.preferredWidth: colUsernameWidth
-                    Layout.minimumWidth: colUsernameWidth
-                    Layout.maximumWidth: colUsernameWidth
                     Layout.fillHeight: true
                     Text { 
                         anchors.left: parent.left
@@ -990,13 +1052,12 @@ ApplicationWindow {
                         font.bold: true
                         font.pixelSize: 11
                         font.letterSpacing: 1
+                        verticalAlignment: Text.AlignVCenter
                     }
                 }
                 
                 Item {
                     Layout.preferredWidth: colPasswordWidth
-                    Layout.minimumWidth: colPasswordWidth
-                    Layout.maximumWidth: colPasswordWidth
                     Layout.fillHeight: true
                     Text { 
                         anchors.left: parent.left
@@ -1006,19 +1067,25 @@ ApplicationWindow {
                         font.bold: true
                         font.pixelSize: 11
                         font.letterSpacing: 1
+                        verticalAlignment: Text.AlignVCenter
                     }
                 }
                 
                 Item { 
                     Layout.preferredWidth: colActionsWidth
-                    Layout.minimumWidth: colActionsWidth
-                    Layout.maximumWidth: colActionsWidth
                     Layout.fillHeight: true
                 }
+                
+                Item { Layout.fillWidth: true }
             }
             
             Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredHeight: 1
+                Layout.minimumHeight: 1
+                Layout.maximumHeight: 1
+                Layout.fillHeight: false
+                implicitHeight: 1
                 height: 1
                 color: borderMain
                 Layout.bottomMargin: 8
@@ -1034,10 +1101,28 @@ ApplicationWindow {
                 
                 model: ListModel { id: vaultModel }
                 
+                ScrollBar.vertical: ScrollBar {
+                    active: true
+                    width: 8
+                    contentItem: Rectangle {
+                        implicitWidth: 6
+                        implicitHeight: 100
+                        radius: 3
+                        color: parent.pressed ? textMain : (parent.hovered ? textMuted : "#33ffffff")
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                    background: Rectangle {
+                        implicitWidth: 8
+                        color: "transparent"
+                    }
+                }
+                
                 delegate: Rectangle {
                     width: passwordList.width
                     height: 56
-                    color: ma.hovered ? bgHover : (wallpaperPath !== "" ? "#66000000" : "transparent")
+                    color: ma.hovered ? bgHover : (wallpaperPath !== "" ? "#40000000" : "transparent")
+                    border.color: (wallpaperPath !== "" && !ma.hovered) ? "#1Affffff" : "transparent"
+                    border.width: 1
                     radius: 6
                     
                     property bool showPassword: false
@@ -1054,11 +1139,9 @@ ApplicationWindow {
                         anchors.rightMargin: 16
                         spacing: 0
                         
-                        // Kolon 1: Servis ve Marka İkonu (Orantılı Dağılım)
+                        // 1. Kolon: Servis İkonu ve Adı
                         Item {
                             Layout.preferredWidth: colServiceWidth
-                            Layout.minimumWidth: colServiceWidth
-                            Layout.maximumWidth: colServiceWidth
                             Layout.fillHeight: true
                             clip: true
                             
@@ -1112,11 +1195,9 @@ ApplicationWindow {
                             }
                         }
                         
-                        // Kolon 2: Kullanıcı Adı / E-posta (Orantılı Dağılım)
+                        // 2. Kolon: Kullanıcı Adı / E-Posta
                         Item {
                             Layout.preferredWidth: colUsernameWidth
-                            Layout.minimumWidth: colUsernameWidth
-                            Layout.maximumWidth: colUsernameWidth
                             Layout.fillHeight: true
                             clip: true
                             
@@ -1132,11 +1213,9 @@ ApplicationWindow {
                             }
                         }
                         
-                        // Kolon 3: Parola ve Rozet (Orantılı Dağılım - Sıfır Jitter)
+                        // 3. Kolon: Parola ve Güvenlik Rozetleri
                         Item {
                             Layout.preferredWidth: colPasswordWidth
-                            Layout.minimumWidth: colPasswordWidth
-                            Layout.maximumWidth: colPasswordWidth
                             Layout.fillHeight: true
                             clip: true
                             
@@ -1203,11 +1282,9 @@ ApplicationWindow {
                             }
                         }
                         
-                        // Kolon 4: Eylemler (Sabit Genişlik)
+                        // 4. Kolon: Aksiyon Butonları
                         Item {
                             Layout.preferredWidth: colActionsWidth
-                            Layout.minimumWidth: colActionsWidth
-                            Layout.maximumWidth: colActionsWidth
                             Layout.fillHeight: true
                             
                             RowLayout {
@@ -1230,6 +1307,9 @@ ApplicationWindow {
                                         radius: 4 
                                     }
                                     onClicked: showPassword = !showPassword
+                                    
+                                    scale: pressed ? 0.9 : (hovered ? 1.05 : 1.0)
+                                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
                                 }
                                 
                                 Button {
@@ -1247,6 +1327,9 @@ ApplicationWindow {
                                         radius: 4 
                                     }
                                     onClicked: vaultManager.copyToClipboard(model.password)
+                                    
+                                    scale: pressed ? 0.9 : (hovered ? 1.05 : 1.0)
+                                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
                                 }
                                 
                                 Button {
@@ -1270,6 +1353,9 @@ ApplicationWindow {
                                         editDialog.passwordText = model.password
                                         editDialog.open()
                                     }
+                                    
+                                    scale: pressed ? 0.9 : (hovered ? 1.05 : 1.0)
+                                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
                                 }
                                 
                                 Button {
@@ -1291,9 +1377,14 @@ ApplicationWindow {
                                         loadData()
                                         showToast(t("toast_deleted"))
                                     }
+                                    
+                                    scale: pressed ? 0.9 : (hovered ? 1.05 : 1.0)
+                                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
                                 }
                             }
                         }
+                        
+                        Item { Layout.fillWidth: true; Layout.fillHeight: true }
                     }
                 }
             }
@@ -1317,6 +1408,9 @@ ApplicationWindow {
                 border.color: borderMain
             }
             onClicked: appState = 3
+            
+            scale: pressed ? 0.9 : (hovered ? 1.05 : 1.0)
+            Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
         }
     }
     
@@ -1324,6 +1418,12 @@ ApplicationWindow {
     Item {
         anchors.fill: parent
         visible: appState === 3
+        
+        Shortcut {
+            sequence: "Esc"
+            enabled: appState === 3
+            onActivated: appState = 2
+        }
         
         ColumnLayout {
             anchors.fill: parent
@@ -1374,12 +1474,15 @@ ApplicationWindow {
             
             // Scrollable Structured Settings List
             ScrollView {
+                id: settingsScrollView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
+                contentWidth: availableWidth
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 
                 ScrollBar.vertical: ScrollBar {
+                    id: settingsVBar
                     policy: ScrollBar.AsNeeded
                     width: 6
                     contentItem: Rectangle {
@@ -1390,7 +1493,7 @@ ApplicationWindow {
                 }
                 
                 ColumnLayout {
-                    width: parent.width - 12
+                    width: Math.max(100, settingsScrollView.availableWidth - (settingsVBar.visible ? 8 : 0))
                     spacing: 12
                     
                     // ========================================================
@@ -1461,12 +1564,15 @@ ApplicationWindow {
                                             height: 22
                                             source: "qrc:/icons/flag_tr.svg"
                                             sourceSize: Qt.size(22, 22)
+                                            Layout.alignment: Qt.AlignVCenter
                                         }
                                         Text {
                                             text: "Türkçe"
                                             color: appLang === "tr" ? textMain : textMuted
                                             font.pixelSize: 13
                                             font.bold: appLang === "tr"
+                                            verticalAlignment: Text.AlignVCenter
+                                            Layout.alignment: Qt.AlignVCenter
                                         }
                                     }
                                     
@@ -1500,12 +1606,15 @@ ApplicationWindow {
                                             height: 22
                                             source: "qrc:/icons/flag_us.svg"
                                             sourceSize: Qt.size(22, 22)
+                                            Layout.alignment: Qt.AlignVCenter
                                         }
                                         Text {
                                             text: "English"
                                             color: appLang === "en" ? textMain : textMuted
                                             font.pixelSize: 13
                                             font.bold: appLang === "en"
+                                            verticalAlignment: Text.AlignVCenter
+                                            Layout.alignment: Qt.AlignVCenter
                                         }
                                     }
                                     
@@ -1584,7 +1693,7 @@ ApplicationWindow {
                                     
                                     background: Rectangle {
                                         x: scaleSlider.leftPadding
-                                        y: scaleSlider.topPadding + scaleSlider.availableHeight / 2 - height / 2
+                                        y: (scaleSlider.height - height) / 2
                                         width: scaleSlider.availableWidth
                                         height: 4
                                         radius: 2
@@ -1598,7 +1707,7 @@ ApplicationWindow {
                                     }
                                     handle: Rectangle {
                                         x: scaleSlider.leftPadding + scaleSlider.visualPosition * (scaleSlider.availableWidth - width)
-                                        y: scaleSlider.topPadding + scaleSlider.availableHeight / 2 - height / 2
+                                        y: (scaleSlider.height - height) / 2
                                         width: 16
                                         height: 16
                                         radius: 8
@@ -1623,11 +1732,13 @@ ApplicationWindow {
                                             border.color: Math.abs(uiScale - modelData.val) < 0.02 ? accent : borderMain
                                             border.width: 1
                                             Text {
-                                                anchors.centerIn: parent
+                                                anchors.fill: parent
                                                 text: modelData.label
                                                 color: Math.abs(uiScale - modelData.val) < 0.02 ? bgMain : textMain
                                                 font.pixelSize: 12
                                                 font.bold: true
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
                                             }
                                             MouseArea {
                                                 id: presetMa
@@ -1681,6 +1792,9 @@ ApplicationWindow {
                                     text: wallpaperPath === "" ? "Görsel Seç" : "Değiştir"
                                     Layout.preferredWidth: 90
                                     Layout.preferredHeight: 36
+                                    padding: 0
+                                    topPadding: 0
+                                    bottomPadding: 0
                                     background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
                                     contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                     onClicked: wallpaperDialog.open()
@@ -1691,6 +1805,9 @@ ApplicationWindow {
                                     text: "Kaldır"
                                     Layout.preferredWidth: 64
                                     Layout.preferredHeight: 36
+                                    padding: 0
+                                    topPadding: 0
+                                    bottomPadding: 0
                                     background: Rectangle { color: danger; radius: 6 }
                                     contentItem: Text { text: parent.text; color: bgMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                     onClicked: {
@@ -1713,7 +1830,7 @@ ApplicationWindow {
                                 }
                                 background: Rectangle {
                                     x: parent.leftPadding
-                                    y: parent.topPadding + parent.availableHeight / 2 - height / 2
+                                    y: (parent.height - height) / 2
                                     width: parent.availableWidth
                                     height: 4
                                     radius: 2
@@ -1727,7 +1844,7 @@ ApplicationWindow {
                                 }
                                 handle: Rectangle {
                                     x: parent.leftPadding + parent.visualPosition * (parent.availableWidth - width)
-                                    y: parent.topPadding + parent.availableHeight / 2 - height / 2
+                                    y: (parent.height - height) / 2
                                     width: 16
                                     height: 16
                                     radius: 8
@@ -1757,6 +1874,8 @@ ApplicationWindow {
                     // 2.1 Ana Parolayı Güncelle
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: bgSecondary
                         border.color: borderMain
@@ -1783,6 +1902,9 @@ ApplicationWindow {
                                 text: "Değiştir"
                                 Layout.preferredWidth: 100
                                 Layout.preferredHeight: 36
+                                padding: 0
+                                topPadding: 0
+                                bottomPadding: 0
                                 background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
                                 contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                 onClicked: changeMasterPwdDialog.open()
@@ -1793,6 +1915,8 @@ ApplicationWindow {
                     // 2.2 Ekran Görüntüsü ve Casus Koruması
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: bgSecondary
                         border.color: borderMain
@@ -1843,6 +1967,8 @@ ApplicationWindow {
                     // 2.3 Otomatik Kilit
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: bgSecondary
                         border.color: borderMain
@@ -1869,6 +1995,9 @@ ApplicationWindow {
                                 id: autoLockCombo
                                 Layout.preferredWidth: 150
                                 Layout.preferredHeight: 36
+                                padding: 0
+                                topPadding: 0
+                                bottomPadding: 0
                                 model: ["1 Dakika", "5 Dakika", "10 Dakika", "Hiçbir Zaman"]
                                 
                                 function minutesToIndex(mins) {
@@ -1910,7 +2039,8 @@ ApplicationWindow {
                                 }
                                 delegate: ItemDelegate {
                                     width: autoLockCombo.width
-                                    contentItem: Text { text: modelData; color: textMain; font.pixelSize: 13 }
+                                    padding: 0
+                                    contentItem: Text { text: modelData; color: textMain; font.pixelSize: 13; leftPadding: 12; verticalAlignment: Text.AlignVCenter }
                                     background: Rectangle { color: hovered ? bgHover : bgSecondary }
                                 }
                             }
@@ -1937,6 +2067,8 @@ ApplicationWindow {
                     // 3.1 Şifreli Kasa Yedeği (.vault)
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: bgSecondary
                         border.color: borderMain
@@ -1963,6 +2095,9 @@ ApplicationWindow {
                                 text: "Yedek Al"
                                 Layout.preferredWidth: 100
                                 Layout.preferredHeight: 36
+                                padding: 0
+                                topPadding: 0
+                                bottomPadding: 0
                                 background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
                                 contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                 onClicked: exportVaultDialog.open()
@@ -1973,6 +2108,8 @@ ApplicationWindow {
                     // 3.2 Yedekten Geri Yükle (.vault)
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: bgSecondary
                         border.color: borderMain
@@ -1999,6 +2136,9 @@ ApplicationWindow {
                                 text: "Geri Yükle"
                                 Layout.preferredWidth: 100
                                 Layout.preferredHeight: 36
+                                padding: 0
+                                topPadding: 0
+                                bottomPadding: 0
                                 background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
                                 contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                 onClicked: importVaultDialog.open()
@@ -2009,6 +2149,8 @@ ApplicationWindow {
                     // 3.3 Şifresiz CSV Dışa Aktarımı
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: bgSecondary
                         border.color: borderMain
@@ -2035,6 +2177,9 @@ ApplicationWindow {
                                 text: "CSV Aktar"
                                 Layout.preferredWidth: 100
                                 Layout.preferredHeight: 36
+                                padding: 0
+                                topPadding: 0
+                                bottomPadding: 0
                                 background: Rectangle { color: parent.hovered ? bgHover : "#141414"; radius: 6; border.color: borderMain }
                                 contentItem: Text { text: parent.text; color: textMain; font.pixelSize: 13; font.bold: true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                 onClicked: exportCsvDialog.open()
@@ -2062,6 +2207,8 @@ ApplicationWindow {
                     // 4.1 Kasayı Tamamen Sıfırla
                     Rectangle {
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 74
+                        implicitHeight: 74
                         height: 74
                         color: "#120808"
                         border.color: "#88ff4444"
@@ -2088,6 +2235,9 @@ ApplicationWindow {
                                 text: "Kasayı Sil"
                                 Layout.preferredWidth: 90
                                 Layout.preferredHeight: 36
+                                padding: 0
+                                topPadding: 0
+                                bottomPadding: 0
                                 background: Rectangle { color: parent.hovered ? "#ff2222" : danger; radius: 6 }
                                 contentItem: Text { text: parent.text; color: bgMain; font.bold: true; font.pixelSize: 13; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                                 onClicked: {
@@ -2119,6 +2269,7 @@ ApplicationWindow {
         
         property bool showPassword: false
         readonly property var addBrandInfo: getBrandInfo(addService.text)
+        property int genLength: 16
         
         onAboutToShow: {
             showPassword = false
@@ -2143,9 +2294,9 @@ ApplicationWindow {
                     width: 44
                     height: 44
                     radius: 10
-                    color: "#141414"
-                    border.color: addBrandInfo ? accent : borderMain
-                    border.width: addBrandInfo ? 1.5 : 1
+                    color: addBrandInfo ? "#141414" : accent
+                    border.color: addBrandInfo ? accent : "transparent"
+                    border.width: addBrandInfo ? 1.5 : 0
                     
                     Image {
                         anchors.centerIn: parent
@@ -2171,7 +2322,6 @@ ApplicationWindow {
                 }
                 
                 ColumnLayout {
-                    Layout.fillWidth: true
                     spacing: 2
                     Text {
                         text: "Yeni Şifre Ekle"
@@ -2183,12 +2333,17 @@ ApplicationWindow {
                         text: addBrandInfo ? (addBrandInfo.name + " hesabı ekleniyor") : "Kasanıza yeni bir hesap ve parola ekleyin"
                         color: addBrandInfo ? "#a3a3a3" : textMuted
                         font.pixelSize: 12
+                        visible: true
                     }
                 }
                 
+                Item { Layout.fillWidth: true }
+                
                 Button {
+                    padding: 0
                     Layout.preferredWidth: 32
                     Layout.preferredHeight: 32
+                    Layout.alignment: Qt.AlignTop
                     background: Rectangle {
                         color: parent.hovered ? bgHover : "transparent"
                         radius: 16
@@ -2241,13 +2396,14 @@ ApplicationWindow {
                 }
                 
                 // Canlı Marka Öneri Çipleri (Tak Diye Seçim)
-                Flickable {
+                ScrollView {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 34
+                    Layout.preferredHeight: 44
                     contentWidth: addBrandChipsRow.width
                     contentHeight: 34
                     clip: true
-                    boundsBehavior: Flickable.StopAtBounds
+                    ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+                    ScrollBar.horizontal.policy: ScrollBar.AsNeeded
                     
                     Row {
                         id: addBrandChipsRow
@@ -2397,8 +2553,10 @@ ApplicationWindow {
                             color: parent.hovered ? textMain : bgHover
                             radius: 6
                         }
-                        onClicked: addPassword.text = passwordGen.generate(16)
-                    }
+                        onClicked: {
+                            addPassword.text = passwordGen.generate(addDialog.genLength)
+                            addDialog.showPassword = true // Show the generated password automatically
+                        }
                 }
                 
                 // Güç Göstergesi
@@ -2418,8 +2576,65 @@ ApplicationWindow {
                         color: score <= 1 ? danger : (score <= 2 ? "#fbbf24" : (score <= 3 ? "#34d399" : "#10b981"))
                     }
                 }
+                }
+                
+                // Parola Uzunluğu Slider'ı
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4
+                    spacing: 4
+                    
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text {
+                            text: "ÜRETİLECEK PAROLA UZUNLUĞU: " + addDialog.genLength
+                            color: textMuted
+                            font.pixelSize: 11
+                            font.bold: true
+                            font.letterSpacing: 1
+                            Layout.fillWidth: true
+                        }
+                    }
+                    
+                    Slider {
+                        id: pwdSlider
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 20
+                        from: 8
+                        to: 64
+                        stepSize: 1
+                        value: addDialog.genLength
+                        onValueChanged: {
+                            if (addDialog.genLength !== Math.round(value)) {
+                                addDialog.genLength = Math.round(value)
+                            }
+                        }
+                        
+                        background: Rectangle {
+                            x: pwdSlider.leftPadding
+                            y: (pwdSlider.height - height) / 2
+                            width: pwdSlider.availableWidth
+                            height: 4
+                            radius: 2
+                            color: borderMain
+                            Rectangle {
+                                width: pwdSlider.visualPosition * parent.width
+                                height: parent.height
+                                color: accent
+                                radius: 2
+                            }
+                        }
+                        handle: Rectangle {
+                            x: pwdSlider.leftPadding + pwdSlider.visualPosition * (pwdSlider.availableWidth - width)
+                            y: (pwdSlider.height - height) / 2
+                            width: 16
+                            height: 16
+                            radius: 8
+                            color: pwdSlider.pressed ? "#f0f0f0" : textMain
+                        }
+                    }
+                }
             }
-            
             Item { Layout.preferredHeight: 4 }
             
             // Aksiyon Butonları
@@ -2433,6 +2648,7 @@ ApplicationWindow {
                     text: "İptal"
                     Layout.preferredHeight: 42
                     Layout.preferredWidth: 110
+                    padding: 0
                     background: Rectangle {
                         color: parent.hovered ? bgHover : "transparent"
                         radius: 6
@@ -2453,6 +2669,7 @@ ApplicationWindow {
                     text: "Kaydet"
                     Layout.preferredHeight: 42
                     Layout.preferredWidth: 120
+                    padding: 0
                     background: Rectangle {
                         color: parent.hovered ? accentHover : accent
                         radius: 6
@@ -2564,6 +2781,7 @@ ApplicationWindow {
                 }
                 
                 Button {
+                    padding: 0
                     Layout.preferredWidth: 32
                     Layout.preferredHeight: 32
                     background: Rectangle {
@@ -2808,6 +3026,7 @@ ApplicationWindow {
                 
                 Button {
                     text: "İptal"
+                    padding: 0
                     Layout.preferredHeight: 42
                     Layout.preferredWidth: 110
                     background: Rectangle {
@@ -2828,6 +3047,7 @@ ApplicationWindow {
                 
                 Button {
                     text: "Güncelle"
+                    padding: 0
                     Layout.preferredHeight: 42
                     Layout.preferredWidth: 120
                     background: Rectangle {
@@ -2932,6 +3152,7 @@ ApplicationWindow {
                     }
                     
                     Button {
+                        padding: 0
                         Layout.preferredWidth: 44
                         Layout.preferredHeight: 44
                         icon.source: changeMasterPwdDialog.showNewMasterPwd ? "qrc:/icons/eye-off.svg" : "qrc:/icons/eye.svg"
@@ -2991,6 +3212,7 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
                 Button {
                     text: "İptal"
+                    padding: 0
                     Layout.preferredHeight: 40
                     Layout.preferredWidth: 100
                     background: Rectangle { color: "transparent"; radius: 4; border.color: borderMain; border.width: 1 }
@@ -2999,6 +3221,7 @@ ApplicationWindow {
                 }
                 Button {
                     text: "Parolayı Güncelle"
+                    padding: 0
                     Layout.preferredHeight: 40
                     Layout.preferredWidth: 150
                     background: Rectangle { color: accent; radius: 4 }
@@ -3105,6 +3328,7 @@ ApplicationWindow {
                 
                 Button {
                     text: "İptal"
+                    padding: 0
                     Layout.preferredHeight: 38
                     Layout.preferredWidth: 80
                     background: Rectangle { color: "transparent"; radius: 4; border.color: borderMain; border.width: 1 }
@@ -3117,6 +3341,7 @@ ApplicationWindow {
                 Button {
                     visible: pendingRestoreInfo && pendingRestoreInfo.canMerge && appState === 2
                     text: "Birleştir (Ekle)"
+                    padding: 0
                     Layout.preferredHeight: 38
                     Layout.preferredWidth: 120
                     background: Rectangle { color: bgHover; radius: 4; border.color: borderMain }
@@ -3134,6 +3359,7 @@ ApplicationWindow {
                 
                 Button {
                     text: "Tam Geri Yükle"
+                    padding: 0
                     Layout.preferredHeight: 38
                     Layout.preferredWidth: 130
                     background: Rectangle { color: accent; radius: 4 }
@@ -3194,18 +3420,20 @@ ApplicationWindow {
                 
                 Rectangle {
                     Layout.alignment: Qt.AlignHCenter
-                    width: 54
-                    height: 54
-                    radius: 27
+                    width: 68
+                    height: 68
+                    radius: 34
                     color: "#161616"
                     border.color: "#333333"
                     border.width: 1
                     
                     Image {
                         anchors.centerIn: parent
-                        width: 26
-                        height: 26
-                        source: "qrc:/icons/shield.svg"
+                        width: 44
+                        height: 44
+                        source: "qrc:/icons/logo.png"
+                        fillMode: Image.PreserveAspectFit
+                        mipmap: true
                     }
                 }
                 
@@ -3417,8 +3645,12 @@ ApplicationWindow {
             spacing: 10
 
             Image {
-                source: "qrc:/icons/shield.svg"
-                sourceSize: Qt.size(16, 16)
+                source: "qrc:/icons/logo.png"
+                Layout.preferredWidth: 18
+                Layout.preferredHeight: 18
+                sourceSize: Qt.size(36, 36)
+                fillMode: Image.PreserveAspectFit
+                mipmap: true
                 Layout.alignment: Qt.AlignVCenter
             }
 

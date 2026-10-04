@@ -24,7 +24,12 @@ set(HEADERS
 # QML ve ikon dosyalarını QRC'ye ekle
 set(RESOURCES resources.qrc)
 
-add_executable(VoidPass WIN32 ${SOURCES} ${HEADERS} ${RESOURCES})
+set(EXTRA_SOURCES "")
+if(WIN32)
+    list(APPEND EXTRA_SOURCES app.rc)
+endif()
+
+add_executable(VoidPass WIN32 ${SOURCES} ${HEADERS} ${RESOURCES} ${EXTRA_SOURCES})
 
 target_link_libraries(VoidPass PRIVATE 
     Qt6::Quick 
