@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="resources/icons/logo.png" alt="VoidPass Logo" width="120" />
+  <img src="icons/logo.png" alt="VoidPass Logo" width="120" />
   <h1>VoidPass</h1>
   <p><strong>A Highly Secure, Local-First, Zero-Knowledge Password Manager</strong><br>
   <strong>Yüksek Güvenlikli, Yerel, Sıfır Bilgi Tabanlı Parola Yöneticisi</strong></p>
