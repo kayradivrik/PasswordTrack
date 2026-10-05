@@ -40,32 +40,39 @@ jobs:
   build-windows:
     name: Build for Windows
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Install Qt6
-      uses: jurplel/install-qt-action@v3
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
       with:
-        version: '6.5.3'
-        target: 'desktop'
-        arch: 'win64_msvc2019_64'
-
-    - name: Install OpenSSL (Windows)
-      run: choco install openssl -y
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-ninja
+          mingw-w64-x86_64-qt6-base
+          mingw-w64-x86_64-qt6-declarative
+          mingw-w64-x86_64-openssl
 
     - name: Configure and Build
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL-Win64"
-        cmake --build build --config Release
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
 
     - name: Package with windeployqt
       run: |
         mkdir release_package
-        cp build/Release/VoidPass.exe release_package/
+        cp build/VoidPass.exe release_package/
         windeployqt --qmldir qml release_package/VoidPass.exe
-      shell: bash
+        cp /mingw64/bin/libcrypto-3-x64.dll release_package/ || true
+        cp /mingw64/bin/libssl-3-x64.dll release_package/ || true
 
     - name: Upload Windows Build
       uses: actions/upload-artifact@v4
