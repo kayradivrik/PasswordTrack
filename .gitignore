@@ -1,0 +1,9 @@
+build*/
+*.db
+*.vault
+.DS_Store
+.vscode/
+.idea/
+CMakeLists.txt.user
+VoidPass_Portable/
+*.zip

@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "VoidPass Autofill",
+  "version": "1.0",
+  "description": "VoidPass masaüstü uygulamasından kullanıcı adı ve parolayı otomatik doldurur.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://127.0.0.1:38917/*"],
+  "action": {
+    "default_title": "VoidPass",
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": { "id": "voidpass@kayradivrik" }
+  }
+}
